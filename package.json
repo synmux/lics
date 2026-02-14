@@ -1,0 +1,29 @@
+{
+  "author": {
+    "email": "dave@dave.io",
+    "name": "Dave Williams",
+    "url": "https://github.com/daveio"
+  },
+  "name": "lics",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@trunkio/launcher": "^1.3.4",
+    "@types/bun": "^1.3.9",
+    "@types/node": "^25.2.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "packageManager": "bun@1.3.9",
+  "engines": {
+    "bun": "^1.3.9",
+    "node": "^24.3.1"
+  },
+  "dependencies": {
+    "@notionhq/client": "^5.9.0",
+    "@opentui/core": "^0.1.79",
+    "commander": "^14.0.3"
+  }
+}
