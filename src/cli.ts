@@ -18,6 +18,7 @@ program
   .option('-j, --json [name]', 'output as JSON')
   .option('-c, --copy <name>', 'copy licence key to clipboard (no TUI)')
   .option('-o, --output <dir>', 'output directory for licence files', join(homedir(), 'Downloads'))
+  .option('--xyzzy', 'Enable full CLI (bypass coming soon screen)')
   .action(
     async (
       name: string | undefined,
@@ -26,8 +27,16 @@ program
         json?: string | boolean
         copy?: string
         output: string
+        xyzzy?: boolean
       }
     ) => {
+      // Coming soon gate - remove this block to enable full CLI
+      if (!process.env.LICS_MISE_ACTIVE && !options.xyzzy) {
+        const { renderComingSoon } = await import('./coming-soon.js')
+        await renderComingSoon()
+        return
+      }
+
       // --json mode: no TUI, just stdout
       if (options.json !== undefined) {
         const jsonName = typeof options.json === 'string' ? options.json : name

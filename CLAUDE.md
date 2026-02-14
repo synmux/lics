@@ -10,6 +10,7 @@ A CLI tool for looking up software licence keys and files, built with OpenTUI an
 
 - `src/cli.ts` — Entry point. Commander parses args, then delegates to UI or stdout.
 - `src/ui.ts` — All OpenTUI rendering (lookup card, interactive browser, list view, error view).
+- `src/coming-soon.ts` — **Temporary** coming soon screen (see Coming Soon Feature below).
 - `src/store.ts` — Data layer with mock licences. Will be swapped for Notion adapter later.
 - `src/types.ts` — `Licence` interface and related types. Mirrors the Notion "Licences" database schema.
 - `src/clipboard.ts` — Cross-platform clipboard copy (pbcopy/xclip) and licence file write-out.
@@ -33,6 +34,22 @@ The Notion database (see `.env` for name and ID) has these fields:
 
 A licence can have a key, a file, both, or neither. The `licenceKind()` helper in `types.ts` discriminates between these cases.
 
+## Coming Soon Feature
+
+**TEMPORARY** — LICS currently displays a "Coming Soon" screen by default while in development. This can be bypassed in three ways:
+
+1. Set `LICS_MISE_ACTIVE` environment variable (any value)
+2. Use the `--xyzzy` flag
+3. Delete the gate code block in `src/cli.ts` and remove `src/coming-soon.ts`
+
+Developer bypass: `LICS_MISE_ACTIVE=1 bun src/cli.ts` or `bun src/cli.ts --xyzzy`
+
+When ready to launch, remove:
+
+- The `--xyzzy` option definition (line ~21)
+- The if-block gate at the start of the action handler (lines ~31-36)
+- The `src/coming-soon.ts` file
+
 ## Commands
 
 - `lics <name>` — Quick lookup with TUI card + clipboard copy / file save
@@ -41,6 +58,7 @@ A licence can have a key, a file, both, or neither. The `licenceKind()` helper i
 - `lics --json [name]` / `-j` — JSON output (no TUI)
 - `lics --copy <name>` / `-c` — Copy key to clipboard or save file (no TUI)
 - `lics --output <dir>` / `-o` — Output directory for licence files (default: ~/Downloads)
+- `--xyzzy` — **Temporary** developer flag to bypass coming soon screen
 
 ## Licence Types
 

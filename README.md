@@ -4,6 +4,8 @@ Licence key manager CLI.
 
 Quickly look up and copy software licence keys from the terminal.
 
+> **Note**: LICS is currently in development and will show a "Coming Soon" screen when run. See [Development](#development) for bypass instructions.
+
 Built with [OpenTUI](https://github.com/anomalyco/opentui) for rich terminal rendering and [Commander](https://github.com/tj/commander.js) for argument parsing.
 
 ## Install
@@ -39,6 +41,18 @@ lics --copy jetbrains
 bun run dev          # Watch mode
 bun test             # Run tests
 bunx tsc --noEmit    # Type check
+```
+
+### Bypass Coming Soon Screen
+
+While in development, use either:
+
+```bash
+# Using environment variable
+LICS_MISE_ACTIVE=1 bun src/cli.ts --list
+
+# Using the --xyzzy flag
+bun src/cli.ts --xyzzy --list
 ```
 
 ## Stack
