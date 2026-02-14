@@ -1,6 +1,10 @@
-# lics — Licence Key Manager CLI
+# `lics` — Licence Key Manager CLI
 
 A CLI tool for looking up software licence keys and files, built with OpenTUI and Commander. Backed by a Notion database.
+
+> **IMPORTANT:** Use **BRITISH ENGLISH** throughout.
+>
+> That's "licence", not "license".
 
 ## Architecture
 
