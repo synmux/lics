@@ -10,58 +10,59 @@
 /** A file attachment from the Notion database */
 export interface LicenseFile {
   /** Original filename */
-  name: string
+  name: string;
   /** File content as base64 (mock) or download URL (Notion) */
-  data: string
+  data: string;
 }
 
 /** Core license record — mirrors the Notion schema exactly */
 export interface License {
   /** Notion page ID */
-  id: string
+  id: string;
   /** Software / app name (Notion title field "App") */
-  app: string
+  app: string;
   /** License key string, if this is a key-based license */
-  licenseKey: string | null
+  licenseKey: string | null;
   /** License file attachment, if this is a file-based license */
-  licenseFile: LicenseFile | null
+  licenseFile: LicenseFile | null;
   /** Registered name on the license */
-  name: string | null
+  name: string | null;
   /** Email associated with the license */
-  email: string | null
+  email: string | null;
   /** Software version */
-  version: string | null
+  version: string | null;
   /** Related URL (product page, account portal, etc.) */
-  url: string | null
+  url: string | null;
   /** When the license was purchased */
-  purchaseDate: Date | null
+  purchaseDate: Date | null;
   /** When the license expires (null = perpetual) */
-  expiryDate: Date | null
+  expiryDate: Date | null;
   /** Additional notes */
-  note: string | null
+  note: string | null;
 }
 
 /** Discriminated helper: does this license have a key, a file, or both? */
-export type LicenseKind = "key" | "file" | "both" | "none"
+export type LicenseKind = "key" | "file" | "both" | "none";
 
 export function licenseKind(license: License): LicenseKind {
-  const hasKey = license.licenseKey !== null && license.licenseKey.length > 0
-  const hasFile = license.licenseFile !== null
-  if (hasKey && hasFile) return "both"
-  if (hasKey) return "key"
-  if (hasFile) return "file"
-  return "none"
+  const hasKey = license.licenseKey !== null && license.licenseKey.length > 0;
+  const hasFile = license.licenseFile !== null;
+  if (hasKey && hasFile) return "both";
+  if (hasKey) return "key";
+  if (hasFile) return "file";
+  return "none";
 }
 
 /** Expiry status for color-coding in the TUI */
-export type ExpiryStatus = "valid" | "expiring" | "expired" | "perpetual"
+export type ExpiryStatus = "valid" | "expiring" | "expired" | "perpetual";
 
 /** Returns expiry status with a 30-day "expiring soon" window */
 export function expiryStatus(license: License): ExpiryStatus {
-  if (license.expiryDate === null) return "perpetual"
-  const now = new Date()
-  if (license.expiryDate < now) return "expired"
-  const thirtyDays = 30 * 24 * 60 * 60 * 1000
-  if (license.expiryDate.getTime() - now.getTime() < thirtyDays) return "expiring"
-  return "valid"
+  if (license.expiryDate === null) return "perpetual";
+  const now = new Date();
+  if (license.expiryDate < now) return "expired";
+  const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+  if (license.expiryDate.getTime() - now.getTime() < thirtyDays)
+    return "expiring";
+  return "valid";
 }

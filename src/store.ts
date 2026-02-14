@@ -1,4 +1,4 @@
-import type { License } from "./types.ts"
+import type { License } from "./types.ts";
 
 /**
  * Mock license data matching the Notion "Licences" database schema.
@@ -128,27 +128,27 @@ const licenses: License[] = [
     expiryDate: new Date("2026-11-30"),
     note: "All Apps plan",
   },
-]
+];
 
 /** Fuzzy substring match against app name (case-insensitive) */
 export function searchLicenses(query: string): License[] {
-  const q = query.toLowerCase()
-  return licenses.filter((l) => l.app.toLowerCase().includes(q))
+  const q = query.toLowerCase();
+  return licenses.filter((l) => l.app.toLowerCase().includes(q));
 }
 
 /** Return all licenses */
 export function getAllLicenses(): License[] {
-  return [...licenses]
+  return [...licenses];
 }
 
 /** Exact-ish match: case-insensitive, prefers exact over partial */
 export function getLicense(name: string): License | null {
-  const q = name.toLowerCase()
+  const q = name.toLowerCase();
   return (
     licenses.find((l) => l.app.toLowerCase() === q) ??
     licenses.find((l) => l.app.toLowerCase().includes(q)) ??
     null
-  )
+  );
 }
 
 /**
@@ -156,15 +156,15 @@ export function getLicense(name: string): License | null {
  * Uses simple character overlap scoring.
  */
 export function getSuggestions(query: string, max = 3): string[] {
-  const q = query.toLowerCase()
+  const q = query.toLowerCase();
   const scored = licenses.map((l) => {
-    const name = l.app.toLowerCase()
-    let score = 0
+    const name = l.app.toLowerCase();
+    let score = 0;
     for (const char of q) {
-      if (name.includes(char)) score++
+      if (name.includes(char)) score++;
     }
-    return { name: l.app, score }
-  })
-  scored.sort((a, b) => b.score - a.score)
-  return scored.slice(0, max).map((s) => s.name)
+    return { name: l.app, score };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, max).map((s) => s.name);
 }

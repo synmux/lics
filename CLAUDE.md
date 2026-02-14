@@ -14,18 +14,18 @@ A CLI tool for looking up software license keys and files, built with OpenTUI an
 
 The Notion database "Licences" (ID: `16cb7795-690c-80d2-b3c7-dd756e2822a0`) has these fields:
 
-| Field | Type | Notes |
-|-------|------|-------|
-| App | title | Software name — the search target |
-| License Key | text | Key string (nullable — some licenses are files) |
-| License File | file | File attachment (nullable — some licenses are keys) |
-| Name | text | Registered name |
-| Email | email | Associated email |
-| Version | text | Software version |
-| URL | url | Product page / account portal |
-| Purchase Date | date | When purchased |
-| Expiry Date | date | When it expires (null = perpetual), reminder 1 week before |
-| Note | text | Additional notes |
+| Field         | Type  | Notes                                                      |
+| ------------- | ----- | ---------------------------------------------------------- |
+| App           | title | Software name — the search target                          |
+| License Key   | text  | Key string (nullable — some licenses are files)            |
+| License File  | file  | File attachment (nullable — some licenses are keys)        |
+| Name          | text  | Registered name                                            |
+| Email         | email | Associated email                                           |
+| Version       | text  | Software version                                           |
+| URL           | url   | Product page / account portal                              |
+| Purchase Date | date  | When purchased                                             |
+| Expiry Date   | date  | When it expires (null = perpetual), reminder 1 week before |
+| Note          | text  | Additional notes                                           |
 
 A license can have a key, a file, both, or neither. The `licenseKind()` helper in `types.ts` discriminates between these cases.
 

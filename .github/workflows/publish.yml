@@ -1,4 +1,7 @@
 name: publish
+permissions:
+  contents: read
+  id-token: write
 on:
   release:
     types:
@@ -6,18 +9,50 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Extract version from release tag
+        id: version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="${TAG#v}"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'; then
+            echo "::error::Tag '$TAG' is not valid semver"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Determine npm dist-tag
+        id: npm_tag
+        env:
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            echo "tag=pre" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+
+      - run: bun install
+
+      - name: Set package version
+        env:
+          PKG_VERSION: ${{ steps.version.outputs.version }}
+        run: npm version "$PKG_VERSION" --no-git-tag-version
+
       - run: bun ci
       - run: bun run build --if-present
       - run: bun test
-      - run: npm publish --provenance
+
+      - name: Publish to npm
+        env:
+          NPM_TAG: ${{ steps.npm_tag.outputs.tag }}
+        run: npm publish --provenance --tag "$NPM_TAG"
