@@ -62,7 +62,8 @@ jobs:
         with:
           node-version: "24"
           registry-url: https://registry.npmjs.org
-      - run: bun install
+      - name: Install dependencies
+        run: bun install
       - name: Set package version
         env:
           PKG_VERSION: ${{ steps.version.outputs.version }}
