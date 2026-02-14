@@ -42,14 +42,13 @@ jobs:
         env:
           PKG_VERSION: ${{ steps.version.outputs.version }}
         run: npm version "$PKG_VERSION" --no-git-tag-version
-      - name: CI
-        run: bun ci
+      - name: Lint
+        run: bun lint
       - name: Build
         run: bun build src/cli.ts --outdir dist --target node --format esm
       - name: Test
         run: bun test
-
-      - name: Publish to npm
+      - name: Publish
         env:
           NPM_TAG: ${{ steps.npm_tag.outputs.tag }}
         run: npm publish --provenance --tag "$NPM_TAG"

@@ -1,51 +1,51 @@
 {
-  "author": {
-    "email": "dave@dave.io",
-    "name": "Dave Williams",
-    "url": "https://github.com/daveio"
-  },
-  "name": "lics",
-  "module": "dist/cli.js",
-  "type": "module",
-  "bin": {
-    "lics": "dist/cli.js"
-  },
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "scripts": {
-    "start": "bun src/cli.ts",
-    "dev": "bun --watch src/cli.ts",
-    "ci": "bun run-s ci:trunk ci:tsc",
-    "ci:trunk": "bun run trunk check -a --ci",
-    "ci:tsc": "tsc --noEmit",
-    "make": "bun build src/cli.ts --outdir dist --target node --format esm",
-    "test": "bun test"
-  },
-  "devDependencies": {
-    "@trunkio/launcher": "^1.3.4",
-    "@types/bun": "^1.3.9",
-    "@types/node": "^25.2.3",
-    "npm-run-all2": "^8.0.4"
-  },
-  "peerDependencies": {
-    "typescript": "^5.9.3"
-  },
-  "packageManager": "bun@1.3.9",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org",
-    "provenance": true
-  },
-  "engines": {
-    "bun": "^1.3.9",
-    "node": "^24.3.1"
-  },
-  "dependencies": {
-    "@notionhq/client": "^5.9.0",
-    "@opentui/core": "^0.1.79",
-    "commander": "^14.0.3"
-  },
-  "version": "0.0.0-dev.unversioned"
+	"author": {
+		"email": "dave@dave.io",
+		"name": "Dave Williams",
+		"url": "https://github.com/daveio"
+	},
+	"name": "lics",
+	"module": "dist/cli.js",
+	"type": "module",
+	"bin": {
+		"lics": "dist/cli.js"
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"scripts": {
+		"start": "bun src/cli.ts",
+		"dev": "bun --watch src/cli.ts",
+		"lint": "bun run-s lint:trunk lint:tsc",
+		"lint:trunk": "bun run trunk check -a --ci",
+		"lint:tsc": "tsc --noEmit",
+		"make": "bun build src/cli.ts --outdir dist --target node --format esm",
+		"test": "bun test"
+	},
+	"devDependencies": {
+		"@trunkio/launcher": "^1.3.4",
+		"@types/bun": "^1.3.9",
+		"@types/node": "^25.2.3",
+		"npm-run-all2": "^8.0.4"
+	},
+	"peerDependencies": {
+		"typescript": "^5.9.3"
+	},
+	"packageManager": "bun@1.3.9",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org",
+		"provenance": true
+	},
+	"engines": {
+		"bun": "^1.3.9",
+		"node": "^24.3.1"
+	},
+	"dependencies": {
+		"@notionhq/client": "^5.9.0",
+		"@opentui/core": "^0.1.79",
+		"commander": "^14.0.3"
+	},
+	"version": "0.0.0-dev.unversioned"
 }
