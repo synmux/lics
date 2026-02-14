@@ -17,10 +17,10 @@ import {
   type CliRenderer,
   type KeyEvent,
 } from "@opentui/core";
-import type { License } from "./types.ts";
-import { licenseKind } from "./types.ts";
-import { copyToClipboard, writeLicenseFile } from "./clipboard.ts";
-import { searchLicenses, getSuggestions } from "./store.ts";
+import type { Licence } from "./types.ts";
+import { licenceKind } from "./types.ts";
+import { copyToClipboard, writeLicenceFile } from "./clipboard.ts";
+import { searchLicences, getSuggestions } from "./store.ts";
 
 // ── Color Palette (Tokyo Night) ──────────────────────────────────────
 const colors = {
@@ -37,30 +37,30 @@ const colors = {
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
-function expiryColor(license: License): string {
-  if (!license.expiryDate) return colors.info;
+function expiryColor(licence: Licence): string {
+  if (!licence.expiryDate) return colors.info;
   const now = Date.now();
-  const expiry = license.expiryDate.getTime();
+  const expiry = licence.expiryDate.getTime();
   const daysLeft = (expiry - now) / (1000 * 60 * 60 * 24);
   if (daysLeft < 0) return colors.error;
   if (daysLeft < 30) return colors.warning;
   return colors.success;
 }
 
-function expiryText(license: License): string {
-  if (!license.expiryDate) return "Perpetual";
+function expiryText(licence: Licence): string {
+  if (!licence.expiryDate) return "Perpetual";
   const now = Date.now();
-  const expiry = license.expiryDate.getTime();
+  const expiry = licence.expiryDate.getTime();
   const daysLeft = Math.floor((expiry - now) / (1000 * 60 * 60 * 24));
   if (daysLeft < 0) return `Expired ${Math.abs(daysLeft)}d ago`;
   if (daysLeft === 0) return "Expires today";
   if (daysLeft < 30) return `${daysLeft}d remaining`;
-  const date = license.expiryDate;
+  const date = licence.expiryDate;
   return `${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
 }
 
-function kindBadge(license: License): string {
-  const kind = licenseKind(license);
+function kindBadge(licence: Licence): string {
+  const kind = licenceKind(licence);
   switch (kind) {
     case "key":
       return "Key";
@@ -73,10 +73,10 @@ function kindBadge(license: License): string {
   }
 }
 
-function formatLicenseOption(l: License): {
+function formatLicenceOption(l: Licence): {
   name: string;
   description: string;
-  value: License;
+  value: Licence;
 } {
   const exp = expiryText(l);
   const badge = kindBadge(l);
@@ -90,7 +90,7 @@ function formatLicenseOption(l: License): {
 // ── Render: Quick Lookup ─────────────────────────────────────────────
 
 export async function renderLookup(
-  license: License,
+  licence: Licence,
   outputDir?: string,
 ): Promise<void> {
   const renderer = await createCliRenderer({ exitOnCtrlC: true });
@@ -133,7 +133,7 @@ export async function renderLookup(
 
   const loadingText = new TextRenderable(renderer, {
     id: "loading-text",
-    content: t`${dim("Fetching license...")}`,
+    content: t`${dim("Fetching licence...")}`,
   });
 
   root.add(banner);
@@ -166,25 +166,25 @@ export async function renderLookup(
   root.remove("loading-text");
   root.remove("load-outer");
 
-  const card = buildLicenseCard(renderer, license);
+  const card = buildLicenceCard(renderer, licence);
   root.add(card);
 
-  // Handle key copy / file write based on license kind
-  const kind = licenseKind(license);
+  // Handle key copy / file write based on licence kind
+  const kind = licenceKind(licence);
   let actionMsg = "";
 
   if (kind === "key" || kind === "both") {
-    const copied = await copyToClipboard(license.licenseKey!);
+    const copied = await copyToClipboard(licence.licenceKey!);
     actionMsg = copied
       ? `✓ Key copied to clipboard`
       : `(clipboard not available)`;
   }
 
   if (kind === "file" || kind === "both") {
-    const path = await writeLicenseFile(license.licenseFile!, outputDir);
+    const path = await writeLicenceFile(licence.licenceFile!, outputDir);
     const fileMsg = path
-      ? `✓ License file saved to ${path}`
-      : `✗ Failed to write license file`;
+      ? `✓ Licence file saved to ${path}`
+      : `✗ Failed to write licence file`;
     actionMsg = actionMsg ? `${actionMsg}\n${fileMsg}` : fileMsg;
   }
 
@@ -226,7 +226,7 @@ export async function renderLookup(
 // ── Render: Disambiguation (multiple matches) ────────────────────────
 
 export async function renderDisambiguate(
-  matches: License[],
+  matches: Licence[],
   outputDir?: string,
 ): Promise<void> {
   const renderer = await createCliRenderer({ exitOnCtrlC: true });
@@ -258,7 +258,7 @@ export async function renderDisambiguate(
     id: "select",
     width: 50,
     height: Math.min(matches.length * 2 + 2, 16),
-    options: matches.map(formatLicenseOption),
+    options: matches.map(formatLicenceOption),
     selectedBackgroundColor: colors.border,
     selectedTextColor: colors.bg,
     backgroundColor: colors.bg,
@@ -280,7 +280,7 @@ export async function renderDisambiguate(
 
   select.on(
     SelectRenderableEvents.ITEM_SELECTED,
-    async (_index: number, option: { value: License }) => {
+    async (_index: number, option: { value: Licence }) => {
       renderer.destroy();
       await renderLookup(option.value, outputDir);
     },
@@ -296,13 +296,13 @@ export async function renderDisambiguate(
 // ── Render: Interactive Browser ──────────────────────────────────────
 
 export async function renderBrowser(
-  licenses: License[],
+  licences: Licence[],
   outputDir?: string,
 ): Promise<void> {
   const renderer = await createCliRenderer({ exitOnCtrlC: true });
 
   let searchFocused = true;
-  let currentLicenses = licenses;
+  let currentLicences = licences;
 
   const root = new BoxRenderable(renderer, {
     id: "root",
@@ -351,12 +351,12 @@ export async function renderBrowser(
   searchRow.add(searchLabel);
   searchRow.add(searchInput);
 
-  // License list
+  // Licence list
   const select = new SelectRenderable(renderer, {
-    id: "license-list",
+    id: "licence-list",
     width: 55,
     height: 14,
-    options: licenses.map(formatLicenseOption),
+    options: licences.map(formatLicenceOption),
     selectedBackgroundColor: colors.border,
     selectedTextColor: colors.bg,
     backgroundColor: colors.bg,
@@ -383,18 +383,18 @@ export async function renderBrowser(
   // Search filtering
   searchInput.on(InputRenderableEvents.CHANGE, (value: string) => {
     if (value.trim() === "") {
-      currentLicenses = licenses;
+      currentLicences = licences;
     } else {
-      currentLicenses = searchLicenses(value);
+      currentLicences = searchLicences(value);
     }
-    select.options = currentLicenses.map(formatLicenseOption);
+    select.options = currentLicences.map(formatLicenceOption);
     select.setSelectedIndex(0);
   });
 
   // Selection handling
   select.on(
     SelectRenderableEvents.ITEM_SELECTED,
-    async (_index: number, option: { value: License }) => {
+    async (_index: number, option: { value: Licence }) => {
       renderer.destroy();
       await renderLookup(option.value, outputDir);
     },
@@ -425,7 +425,7 @@ export async function renderBrowser(
 
 // ── Render: List (non-interactive) ───────────────────────────────────
 
-export async function renderList(licenses: License[]): Promise<void> {
+export async function renderList(licences: Licence[]): Promise<void> {
   const renderer = await createCliRenderer({ exitOnCtrlC: true });
 
   const root = new BoxRenderable(renderer, {
@@ -487,9 +487,9 @@ export async function renderList(licenses: License[]): Promise<void> {
   root.add(sep);
 
   // Data rows
-  for (const license of licenses) {
+  for (const licence of licences) {
     const row = new BoxRenderable(renderer, {
-      id: `row-${license.id}`,
+      id: `row-${licence.id}`,
       flexDirection: "row",
       gap: 1,
       paddingLeft: 1,
@@ -497,22 +497,22 @@ export async function renderList(licenses: License[]): Promise<void> {
     });
     row.add(
       new TextRenderable(renderer, {
-        id: `name-${license.id}`,
-        content: t`${fg(colors.text)(license.app)}`,
+        id: `name-${licence.id}`,
+        content: t`${fg(colors.text)(licence.app)}`,
         width: 28,
       }),
     );
     row.add(
       new TextRenderable(renderer, {
-        id: `kind-${license.id}`,
-        content: t`${fg(colors.accent)(kindBadge(license))}`,
+        id: `kind-${licence.id}`,
+        content: t`${fg(colors.accent)(kindBadge(licence))}`,
         width: 10,
       }),
     );
     row.add(
       new TextRenderable(renderer, {
-        id: `exp-${license.id}`,
-        content: t`${fg(expiryColor(license))(expiryText(license))}`,
+        id: `exp-${licence.id}`,
+        content: t`${fg(expiryColor(licence))(expiryText(licence))}`,
         width: 16,
       }),
     );
@@ -611,11 +611,11 @@ export async function renderError(
   });
 }
 
-// ── Private: License card component ──────────────────────────────────
+// ── Private: Licence card component ──────────────────────────────────
 
-function buildLicenseCard(
+function buildLicenceCard(
   renderer: CliRenderer,
-  license: License,
+  licence: Licence,
 ): BoxRenderable {
   const card = new BoxRenderable(renderer, {
     id: "card",
@@ -632,25 +632,25 @@ function buildLicenseCard(
   // App name
   const nameText = new TextRenderable(renderer, {
     id: "card-name",
-    content: t`${bold(fg(colors.text)(license.app))}`,
+    content: t`${bold(fg(colors.text)(licence.app))}`,
   });
   card.add(nameText);
 
-  // License key or file indicator
-  const kind = licenseKind(license);
+  // Licence key or file indicator
+  const kind = licenceKind(licence);
 
-  if (license.licenseKey) {
+  if (licence.licenceKey) {
     const keyText = new TextRenderable(renderer, {
       id: "card-key",
-      content: t`${fg(colors.info)(license.licenseKey)}`,
+      content: t`${fg(colors.info)(licence.licenceKey)}`,
     });
     card.add(keyText);
   }
 
-  if (license.licenseFile) {
+  if (licence.licenceFile) {
     const fileText = new TextRenderable(renderer, {
       id: "card-file",
-      content: t`${fg(colors.accent)("📄 " + license.licenseFile.name)}`,
+      content: t`${fg(colors.accent)("📄 " + licence.licenceFile.name)}`,
     });
     card.add(fileText);
   }
@@ -672,29 +672,29 @@ function buildLicenseCard(
   metaRow.add(
     new TextRenderable(renderer, {
       id: "card-kind",
-      content: t`${fg(colors.accent)(kindBadge(license))}`,
+      content: t`${fg(colors.accent)(kindBadge(licence))}`,
     }),
   );
   metaRow.add(
     new TextRenderable(renderer, {
       id: "card-expiry",
-      content: t`${fg(expiryColor(license))(expiryText(license))}`,
+      content: t`${fg(expiryColor(licence))(expiryText(licence))}`,
     }),
   );
   card.add(metaRow);
 
   // Version if present
-  if (license.version) {
+  if (licence.version) {
     const versionText = new TextRenderable(renderer, {
       id: "card-version",
-      content: t`${dim("Version:")} ${license.version}`,
+      content: t`${dim("Version:")} ${licence.version}`,
     });
     card.add(versionText);
   }
 
   // Registered to (name + email)
-  if (license.name || license.email) {
-    const parts = [license.name, license.email].filter(Boolean).join(" · ");
+  if (licence.name || licence.email) {
+    const parts = [licence.name, licence.email].filter(Boolean).join(" · ");
     const regText = new TextRenderable(renderer, {
       id: "card-reg",
       content: t`${dim("Registered:")} ${parts}`,
@@ -703,19 +703,19 @@ function buildLicenseCard(
   }
 
   // URL if present
-  if (license.url) {
+  if (licence.url) {
     const urlText = new TextRenderable(renderer, {
       id: "card-url",
-      content: t`${dim("URL:")} ${fg(colors.border)(license.url)}`,
+      content: t`${dim("URL:")} ${fg(colors.border)(licence.url)}`,
     });
     card.add(urlText);
   }
 
   // Note if present
-  if (license.note) {
+  if (licence.note) {
     const noteText = new TextRenderable(renderer, {
       id: "card-note",
-      content: t`${dim(license.note)}`,
+      content: t`${dim(licence.note)}`,
     });
     card.add(noteText);
   }

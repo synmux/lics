@@ -20,7 +20,7 @@
     "ci": "bun run-s ci:trunk ci:tsc",
     "ci:trunk": "bun run trunk check -a --ci",
     "ci:tsc": "tsc --noEmit",
-    "build": "bun build src/cli.ts --outdir dist --target node --format esm",
+    "make": "bun build src/cli.ts --outdir dist --target node --format esm",
     "test": "bun test"
   },
   "devDependencies": {
@@ -47,5 +47,5 @@
     "@opentui/core": "^0.1.79",
     "commander": "^14.0.3"
   },
-  "version": "0.0.0-dev.2"
+  "version": "0.0.0-dev.unversioned"
 }

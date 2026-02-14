@@ -1,4 +1,4 @@
-name: publish
+name: Publish to NPM
 permissions:
   contents: read
   id-token: write
@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Extract version from release tag
         id: version
         env:
@@ -23,7 +22,6 @@ jobs:
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Determine npm dist-tag
         id: npm_tag
         env:
@@ -34,23 +32,22 @@ jobs:
           else
             echo "tag=latest" >> "$GITHUB_OUTPUT"
           fi
-
       - uses: oven-sh/setup-bun@v2
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           registry-url: https://registry.npmjs.org
-
       - run: bun install
-
       - name: Set package version
         env:
           PKG_VERSION: ${{ steps.version.outputs.version }}
         run: npm version "$PKG_VERSION" --no-git-tag-version
-
-      - run: bun ci
-      - run: bun run build --if-present
-      - run: bun test
+      - name: CI
+        run: bun ci
+      - name: Build
+        run: bun build src/cli.ts --outdir dist --target node --format esm
+      - name: Test
+        run: bun test
 
       - name: Publish to npm
         env:

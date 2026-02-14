@@ -1,63 +1,63 @@
 import { test, expect, describe } from "bun:test";
 import {
-  searchLicenses,
-  getAllLicenses,
-  getLicense,
+  searchLicences,
+  getAllLicences,
+  getLicence,
   getSuggestions,
 } from "./store.ts";
-import { licenseKind, expiryStatus } from "./types.ts";
+import { licenceKind, expiryStatus } from "./types.ts";
 
-describe("getAllLicenses", () => {
-  test("returns all 8 licenses", () => {
-    const all = getAllLicenses();
+describe("getAllLicences", () => {
+  test("returns all 8 licences", () => {
+    const all = getAllLicences();
     expect(all).toHaveLength(8);
   });
 
   test("returns a copy (not the original array)", () => {
-    const a = getAllLicenses();
-    const b = getAllLicenses();
+    const a = getAllLicences();
+    const b = getAllLicences();
     expect(a).not.toBe(b);
     expect(a).toEqual(b);
   });
 });
 
-describe("getLicense", () => {
+describe("getLicence", () => {
   test("finds exact match (case-insensitive)", () => {
-    const result = getLicense("Sublime Text");
+    const result = getLicence("Sublime Text");
     expect(result).not.toBeNull();
     expect(result!.app).toBe("Sublime Text");
   });
 
   test("finds partial match", () => {
-    const result = getLicense("sublime");
+    const result = getLicence("sublime");
     expect(result).not.toBeNull();
     expect(result!.app).toBe("Sublime Text");
   });
 
   test("returns null for no match", () => {
-    expect(getLicense("nonexistent")).toBeNull();
+    expect(getLicence("nonexistent")).toBeNull();
   });
 
   test("prefers exact match over partial", () => {
-    const result = getLicense("sketch");
+    const result = getLicence("sketch");
     expect(result).not.toBeNull();
     expect(result!.app).toBe("Sketch");
   });
 });
 
-describe("searchLicenses", () => {
-  test("finds matching licenses", () => {
-    const results = searchLicenses("jet");
+describe("searchLicences", () => {
+  test("finds matching licences", () => {
+    const results = searchLicences("jet");
     expect(results).toHaveLength(1);
     expect(results[0]!.app).toBe("JetBrains All Products Pack");
   });
 
   test("returns empty array for no match", () => {
-    expect(searchLicenses("zzzzz")).toHaveLength(0);
+    expect(searchLicences("zzzzz")).toHaveLength(0);
   });
 
   test("returns multiple matches for broad queries", () => {
-    const results = searchLicenses("a");
+    const results = searchLicences("a");
     expect(results.length).toBeGreaterThan(1);
   });
 });
@@ -74,50 +74,50 @@ describe("getSuggestions", () => {
   });
 });
 
-describe("licenseKind", () => {
-  test("identifies key-based licenses", () => {
-    const license = getLicense("Sublime Text")!;
-    expect(licenseKind(license)).toBe("key");
+describe("licenceKind", () => {
+  test("identifies key-based licences", () => {
+    const licence = getLicence("Sublime Text")!;
+    expect(licenceKind(licence)).toBe("key");
   });
 
-  test("identifies file-based licenses", () => {
-    const license = getLicense("Sketch")!;
-    expect(licenseKind(license)).toBe("file");
+  test("identifies file-based licences", () => {
+    const licence = getLicence("Sketch")!;
+    expect(licenceKind(licence)).toBe("file");
   });
 
-  test("identifies licenses with both key and file", () => {
+  test("identifies licences with both key and file", () => {
     // None in our mock data have both, but test the function
-    const license = getLicense("Sublime Text")!;
+    const licence = getLicence("Sublime Text")!;
     const modified = {
-      ...license,
-      licenseFile: { name: "test.lic", data: "dGVzdA==" },
+      ...licence,
+      licenceFile: { name: "test.lic", data: "dGVzdA==" },
     };
-    expect(licenseKind(modified)).toBe("both");
+    expect(licenceKind(modified)).toBe("both");
   });
 });
 
 describe("expiryStatus", () => {
-  test("identifies perpetual licenses", () => {
-    const license = getLicense("Sublime Text")!;
-    expect(expiryStatus(license)).toBe("perpetual");
+  test("identifies perpetual licences", () => {
+    const licence = getLicence("Sublime Text")!;
+    expect(expiryStatus(licence)).toBe("perpetual");
   });
 
-  test("identifies valid licenses", () => {
-    const license = getLicense("1Password")!;
-    expect(expiryStatus(license)).toBe("valid");
+  test("identifies valid licences", () => {
+    const licence = getLicence("1Password")!;
+    expect(expiryStatus(licence)).toBe("valid");
   });
 
-  test("identifies expired licenses", () => {
-    const license = getLicense("Sublime Text")!;
-    const modified = { ...license, expiryDate: new Date("2020-01-01") };
+  test("identifies expired licences", () => {
+    const licence = getLicence("Sublime Text")!;
+    const modified = { ...licence, expiryDate: new Date("2020-01-01") };
     expect(expiryStatus(modified)).toBe("expired");
   });
 
-  test("identifies expiring-soon licenses", () => {
-    const license = getLicense("Sublime Text")!;
+  test("identifies expiring-soon licences", () => {
+    const licence = getLicence("Sublime Text")!;
     const soon = new Date();
     soon.setDate(soon.getDate() + 10);
-    const modified = { ...license, expiryDate: soon };
+    const modified = { ...licence, expiryDate: soon };
     expect(expiryStatus(modified)).toBe("expiring");
   });
 });

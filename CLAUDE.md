@@ -1,24 +1,24 @@
-# lics — License Key Manager CLI
+# lics — Licence Key Manager CLI
 
-A CLI tool for looking up software license keys and files, built with OpenTUI and Commander. Backed by a Notion database.
+A CLI tool for looking up software licence keys and files, built with OpenTUI and Commander. Backed by a Notion database.
 
 ## Architecture
 
 - `src/cli.ts` — Entry point. Commander parses args, then delegates to UI or stdout.
 - `src/ui.ts` — All OpenTUI rendering (lookup card, interactive browser, list view, error view).
-- `src/store.ts` — Data layer with mock licenses. Will be swapped for Notion adapter later.
-- `src/types.ts` — `License` interface and related types. Mirrors the Notion "Licences" database schema.
-- `src/clipboard.ts` — Cross-platform clipboard copy (pbcopy/xclip) and license file write-out.
+- `src/store.ts` — Data layer with mock licences. Will be swapped for Notion adapter later.
+- `src/types.ts` — `Licence` interface and related types. Mirrors the Notion "Licences" database schema.
+- `src/clipboard.ts` — Cross-platform clipboard copy (pbcopy/xclip) and licence file write-out.
 
 ## Notion Database Schema
 
-The Notion database "Licences" (ID: `16cb7795-690c-80d2-b3c7-dd756e2822a0`) has these fields:
+The Notion database (see `.env` for name and ID) has these fields:
 
 | Field         | Type  | Notes                                                      |
 | ------------- | ----- | ---------------------------------------------------------- |
 | App           | title | Software name — the search target                          |
-| License Key   | text  | Key string (nullable — some licenses are files)            |
-| License File  | file  | File attachment (nullable — some licenses are keys)        |
+| Licence Key   | text  | Key string (nullable — some licences are files)            |
+| Licence File  | file  | File attachment (nullable — some licences are keys)        |
 | Name          | text  | Registered name                                            |
 | Email         | email | Associated email                                           |
 | Version       | text  | Software version                                           |
@@ -27,21 +27,21 @@ The Notion database "Licences" (ID: `16cb7795-690c-80d2-b3c7-dd756e2822a0`) has 
 | Expiry Date   | date  | When it expires (null = perpetual), reminder 1 week before |
 | Note          | text  | Additional notes                                           |
 
-A license can have a key, a file, both, or neither. The `licenseKind()` helper in `types.ts` discriminates between these cases.
+A licence can have a key, a file, both, or neither. The `licenceKind()` helper in `types.ts` discriminates between these cases.
 
 ## Commands
 
 - `lics <name>` — Quick lookup with TUI card + clipboard copy / file save
 - `lics` — Interactive browser with search and keyboard navigation
-- `lics --list` / `-l` — Styled table of all licenses
+- `lics --list` / `-l` — Styled table of all licences
 - `lics --json [name]` / `-j` — JSON output (no TUI)
 - `lics --copy <name>` / `-c` — Copy key to clipboard or save file (no TUI)
-- `lics --output <dir>` / `-o` — Output directory for license files (default: ~/Downloads)
+- `lics --output <dir>` / `-o` — Output directory for licence files (default: ~/Downloads)
 
-## License Types
+## Licence Types
 
-- **Key-based**: License key is copied to clipboard on lookup
-- **File-based**: License file is written to output directory (default ~/Downloads)
+- **Key-based**: Licence key is copied to clipboard on lookup
+- **File-based**: Licence file is written to output directory (default ~/Downloads)
 - **Both**: Key copied AND file written
 - **Neither**: Edge case, shows informational message
 

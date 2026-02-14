@@ -1,16 +1,16 @@
-import type { License } from "./types.ts";
+import type { Licence } from "./types.ts";
 
 /**
- * Mock license data matching the Notion "Licences" database schema.
- * Includes both key-based and file-based licenses.
+ * Mock licence data matching the Notion "Licences" database schema.
+ * Includes both key-based and file-based licences.
  * Will be swapped for a Notion adapter later.
  */
-const licenses: License[] = [
+const licences: Licence[] = [
   {
     id: "mock-1",
     app: "JetBrains All Products Pack",
-    licenseKey: "JBAP-2X9K4-M7R3N-HQWF8-PLZV6",
-    licenseFile: null,
+    licenceKey: "JBAP-2X9K4-M7R3N-HQWF8-PLZV6",
+    licenceFile: null,
     name: "Dave Williams",
     email: "dave@dave.io",
     version: null,
@@ -22,21 +22,21 @@ const licenses: License[] = [
   {
     id: "mock-2",
     app: "Sublime Text",
-    licenseKey: "SUBL-4R8T2-VN5CX-QJ7WM-3YKBD",
-    licenseFile: null,
+    licenceKey: "SUBL-4R8T2-VN5CX-QJ7WM-3YKBD",
+    licenceFile: null,
     name: "Dave Williams",
     email: "dave@dave.io",
     version: "4",
     url: null,
     purchaseDate: new Date("2023-03-15"),
     expiryDate: null,
-    note: "Perpetual license with free updates to v4.x",
+    note: "Perpetual licence with free updates to v4.x",
   },
   {
     id: "mock-3",
     app: "1Password",
-    licenseKey: "A3-XKMR47-NF8QYL-BWTZ62-DPCHV9-JE5GA",
-    licenseFile: null,
+    licenceKey: "A3-XKMR47-NF8QYL-BWTZ62-DPCHV9-JE5GA",
+    licenceFile: null,
     name: "Dave Williams",
     email: "dave@dave.io",
     version: null,
@@ -48,8 +48,8 @@ const licenses: License[] = [
   {
     id: "mock-4",
     app: "SoundSource",
-    licenseKey: "SS5-DXWM-7KRN-VQJF-3BTH",
-    licenseFile: null,
+    licenceKey: "SS5-DXWM-7KRN-VQJF-3BTH",
+    licenceFile: null,
     name: "Dave Williams",
     email: "dave@dave.io",
     version: "5",
@@ -61,8 +61,8 @@ const licenses: License[] = [
   {
     id: "mock-5",
     app: "Typora",
-    licenseKey: "TYP-9NXW4-RQKM7-BFHZ2",
-    licenseFile: null,
+    licenceKey: "TYP-9NXW4-RQKM7-BFHZ2",
+    licenceFile: null,
     name: "Dave Williams",
     email: "dave@dave.io",
     version: "1.x",
@@ -74,19 +74,19 @@ const licenses: License[] = [
   {
     id: "mock-6",
     app: "Microsoft Office 365",
-    licenseKey: null,
-    licenseFile: {
+    licenceKey: null,
+    licenceFile: {
       name: "microsoft-office-365.lic",
-      // Mock base64 content representing a license XML file
+      // Mock base64 content representing a licence XML file
       data: Buffer.from(
         `<?xml version="1.0"?>
-<License>
+<Licence>
   <Product>Microsoft Office 365</Product>
   <Key>NKGG6-WBPCC-HXWMY-6DQGJ-CPQVG</Key>
   <Type>E3</Type>
   <Seats>5</Seats>
   <Expires>2026-12-31</Expires>
-</License>`,
+</Licence>`,
       ).toString("base64"),
     },
     name: "Dave Williams",
@@ -95,16 +95,16 @@ const licenses: License[] = [
     url: "https://portal.office.com",
     purchaseDate: new Date("2025-01-01"),
     expiryDate: new Date("2026-12-31"),
-    note: "E3 license, 5 seats",
+    note: "E3 licence, 5 seats",
   },
   {
     id: "mock-7",
     app: "Sketch",
-    licenseKey: null,
-    licenseFile: {
-      name: "sketch-license.txt",
+    licenceKey: null,
+    licenceFile: {
+      name: "sketch-licence.txt",
       data: Buffer.from(
-        "SKETCH-LICENSE-V99\nHolder: Dave Williams\nEmail: dave@dave.io\nKey: SK99-XWMR-4QKN-7BFH-ZTPL\nDevices: 2\nExpires: Never\n",
+        "SKETCH-LICENCE-V99\nHolder: Dave Williams\nEmail: dave@dave.io\nKey: SK99-XWMR-4QKN-7BFH-ZTPL\nDevices: 2\nExpires: Never\n",
       ).toString("base64"),
     },
     name: "Dave Williams",
@@ -118,8 +118,8 @@ const licenses: License[] = [
   {
     id: "mock-8",
     app: "Adobe Creative Cloud",
-    licenseKey: "ADCC-7WX2F-QR9TN-4MLBK-8YCVH-ZP6JD",
-    licenseFile: null,
+    licenceKey: "ADCC-7WX2F-QR9TN-4MLBK-8YCVH-ZP6JD",
+    licenceFile: null,
     name: "Dave Williams",
     email: "dave@dave.io",
     version: null,
@@ -131,22 +131,22 @@ const licenses: License[] = [
 ];
 
 /** Fuzzy substring match against app name (case-insensitive) */
-export function searchLicenses(query: string): License[] {
+export function searchLicences(query: string): Licence[] {
   const q = query.toLowerCase();
-  return licenses.filter((l) => l.app.toLowerCase().includes(q));
+  return licences.filter((l) => l.app.toLowerCase().includes(q));
 }
 
-/** Return all licenses */
-export function getAllLicenses(): License[] {
-  return [...licenses];
+/** Return all licences */
+export function getAllLicences(): Licence[] {
+  return [...licences];
 }
 
 /** Exact-ish match: case-insensitive, prefers exact over partial */
-export function getLicense(name: string): License | null {
+export function getLicence(name: string): Licence | null {
   const q = name.toLowerCase();
   return (
-    licenses.find((l) => l.app.toLowerCase() === q) ??
-    licenses.find((l) => l.app.toLowerCase().includes(q)) ??
+    licences.find((l) => l.app.toLowerCase() === q) ??
+    licences.find((l) => l.app.toLowerCase().includes(q)) ??
     null
   );
 }
@@ -157,7 +157,7 @@ export function getLicense(name: string): License | null {
  */
 export function getSuggestions(query: string, max = 3): string[] {
   const q = query.toLowerCase();
-  const scored = licenses.map((l) => {
+  const scored = licences.map((l) => {
     const name = l.app.toLowerCase();
     let score = 0;
     for (const char of q) {

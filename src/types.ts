@@ -1,52 +1,52 @@
 /**
- * License types matching the Notion "Licences" database schema.
+ * Licence types matching the Notion "Licences" database schema.
  *
  * Notion fields:
- *   App (title), License Key (text), License File (file),
+ *   App (title), Licence Key (text), Licence File (file),
  *   Name (text), Email (email), Version (text), URL (url),
  *   Purchase Date (date), Expiry Date (date), Note (text)
  */
 
 /** A file attachment from the Notion database */
-export interface LicenseFile {
+export interface LicenceFile {
   /** Original filename */
   name: string;
   /** File content as base64 (mock) or download URL (Notion) */
   data: string;
 }
 
-/** Core license record — mirrors the Notion schema exactly */
-export interface License {
+/** Core licence record — mirrors the Notion schema exactly */
+export interface Licence {
   /** Notion page ID */
   id: string;
   /** Software / app name (Notion title field "App") */
   app: string;
-  /** License key string, if this is a key-based license */
-  licenseKey: string | null;
-  /** License file attachment, if this is a file-based license */
-  licenseFile: LicenseFile | null;
-  /** Registered name on the license */
+  /** Licence key string, if this is a key-based licence */
+  licenceKey: string | null;
+  /** Licence file attachment, if this is a file-based licence */
+  licenceFile: LicenceFile | null;
+  /** Registered name on the licence */
   name: string | null;
-  /** Email associated with the license */
+  /** Email associated with the licence */
   email: string | null;
   /** Software version */
   version: string | null;
   /** Related URL (product page, account portal, etc.) */
   url: string | null;
-  /** When the license was purchased */
+  /** When the licence was purchased */
   purchaseDate: Date | null;
-  /** When the license expires (null = perpetual) */
+  /** When the licence expires (null = perpetual) */
   expiryDate: Date | null;
   /** Additional notes */
   note: string | null;
 }
 
-/** Discriminated helper: does this license have a key, a file, or both? */
-export type LicenseKind = "key" | "file" | "both" | "none";
+/** Discriminated helper: does this licence have a key, a file, or both? */
+export type LicenceKind = "key" | "file" | "both" | "none";
 
-export function licenseKind(license: License): LicenseKind {
-  const hasKey = license.licenseKey !== null && license.licenseKey.length > 0;
-  const hasFile = license.licenseFile !== null;
+export function licenceKind(licence: Licence): LicenceKind {
+  const hasKey = licence.licenceKey !== null && licence.licenceKey.length > 0;
+  const hasFile = licence.licenceFile !== null;
   if (hasKey && hasFile) return "both";
   if (hasKey) return "key";
   if (hasFile) return "file";
@@ -57,12 +57,12 @@ export function licenseKind(license: License): LicenseKind {
 export type ExpiryStatus = "valid" | "expiring" | "expired" | "perpetual";
 
 /** Returns expiry status with a 30-day "expiring soon" window */
-export function expiryStatus(license: License): ExpiryStatus {
-  if (license.expiryDate === null) return "perpetual";
+export function expiryStatus(licence: Licence): ExpiryStatus {
+  if (licence.expiryDate === null) return "perpetual";
   const now = new Date();
-  if (license.expiryDate < now) return "expired";
+  if (licence.expiryDate < now) return "expired";
   const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-  if (license.expiryDate.getTime() - now.getTime() < thirtyDays)
+  if (licence.expiryDate.getTime() - now.getTime() < thirtyDays)
     return "expiring";
   return "valid";
 }

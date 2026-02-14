@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { homedir } from "node:os";
-import type { LicenseFile } from "./types.ts";
+import type { LicenceFile } from "./types.ts";
 
 /**
  * Copy text to the system clipboard.
@@ -36,12 +36,12 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 }
 
 /**
- * Write a license file to the specified directory.
+ * Write a licence file to the specified directory.
  * Defaults to ~/Downloads if no directory is provided.
  * Returns the full path of the written file, or null on failure.
  */
-export async function writeLicenseFile(
-  file: LicenseFile,
+export async function writeLicenceFile(
+  file: LicenceFile,
   outputDir?: string,
 ): Promise<string | null> {
   const dir = outputDir ?? join(homedir(), "Downloads");

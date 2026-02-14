@@ -1,6 +1,8 @@
-# lics
+# `lics`
 
-License key manager CLI — quickly look up and copy software license keys from the terminal.
+Licence key manager CLI.
+
+Quickly look up and copy software licence keys from the terminal.
 
 Built with [OpenTUI](https://github.com/anomalyco/opentui) for rich terminal rendering and [Commander](https://github.com/tj/commander.js) for argument parsing.
 
@@ -20,7 +22,7 @@ lics sublime
 # Interactive browser — search and navigate with keyboard
 lics
 
-# List all licenses
+# List all licences
 lics --list
 
 # JSON output (for scripting)
@@ -41,7 +43,17 @@ bunx tsc --noEmit    # Type check
 
 ## Stack
 
-- **Runtime**: [Bun](https://bun.sh)
-- **TUI**: [@opentui/core](https://github.com/anomalyco/opentui) (imperative API)
-- **CLI**: [Commander](https://github.com/tj/commander.js)
+- **Runtime**: [`bun`](https://bun.sh)
+- **TUI**: [`@opentui/core`](https://github.com/anomalyco/opentui) (imperative API)
+- **CLI**: [`commander`](https://github.com/tj/commander.js)
 - **Data**: Mock store (Notion adapter planned)
+
+## Upcoming
+
+- [ ] Add JSON config in `$XDG_CONFIG_HOME/lics/config.json`
+  - [ ] Database ID (required)
+  - [ ] Database name (necessary? If so, required)
+  - [ ] Path to write licence files (default: `$HOME/Downloads`)
+- [ ] Add Notion adapter
+- [ ] Add support for multiple licences per product
+- [ ] Add support for multiple products per licence
