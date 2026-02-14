@@ -29,6 +29,8 @@ lint:
         - .junie/**
         - .opencode/**
         - .serena/**
+        - .github/workflows/claude.yml
+        - .github/workflows/claude-code-review.yml
     - linters:
         - prettier
       paths:
