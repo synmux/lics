@@ -1,22 +1,49 @@
 # lics — License Key Manager CLI
 
-A CLI tool for looking up software license keys, built with OpenTUI and Commander.
+A CLI tool for looking up software license keys and files, built with OpenTUI and Commander. Backed by a Notion database.
 
 ## Architecture
 
 - `src/cli.ts` — Entry point. Commander parses args, then delegates to UI or stdout.
 - `src/ui.ts` — All OpenTUI rendering (lookup card, interactive browser, list view, error view).
 - `src/store.ts` — Data layer with mock licenses. Will be swapped for Notion adapter later.
-- `src/types.ts` — `License` interface and related types.
-- `src/clipboard.ts` — Cross-platform clipboard copy (pbcopy/xclip).
+- `src/types.ts` — `License` interface and related types. Mirrors the Notion "Licences" database schema.
+- `src/clipboard.ts` — Cross-platform clipboard copy (pbcopy/xclip) and license file write-out.
+
+## Notion Database Schema
+
+The Notion database "Licences" (ID: `16cb7795-690c-80d2-b3c7-dd756e2822a0`) has these fields:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| App | title | Software name — the search target |
+| License Key | text | Key string (nullable — some licenses are files) |
+| License File | file | File attachment (nullable — some licenses are keys) |
+| Name | text | Registered name |
+| Email | email | Associated email |
+| Version | text | Software version |
+| URL | url | Product page / account portal |
+| Purchase Date | date | When purchased |
+| Expiry Date | date | When it expires (null = perpetual), reminder 1 week before |
+| Note | text | Additional notes |
+
+A license can have a key, a file, both, or neither. The `licenseKind()` helper in `types.ts` discriminates between these cases.
 
 ## Commands
 
-- `lics <name>` — Quick lookup with TUI card + clipboard copy
+- `lics <name>` — Quick lookup with TUI card + clipboard copy / file save
 - `lics` — Interactive browser with search and keyboard navigation
 - `lics --list` / `-l` — Styled table of all licenses
 - `lics --json [name]` / `-j` — JSON output (no TUI)
-- `lics --copy <name>` / `-c` — Copy key to clipboard (no TUI)
+- `lics --copy <name>` / `-c` — Copy key to clipboard or save file (no TUI)
+- `lics --output <dir>` / `-o` — Output directory for license files (default: ~/Downloads)
+
+## License Types
+
+- **Key-based**: License key is copied to clipboard on lookup
+- **File-based**: License file is written to output directory (default ~/Downloads)
+- **Both**: Key copied AND file written
+- **Neither**: Edge case, shows informational message
 
 ## OpenTUI Notes
 
