@@ -1,3 +1,34 @@
+# lics — License Key Manager CLI
+
+A CLI tool for looking up software license keys, built with OpenTUI and Commander.
+
+## Architecture
+
+- `src/cli.ts` — Entry point. Commander parses args, then delegates to UI or stdout.
+- `src/ui.ts` — All OpenTUI rendering (lookup card, interactive browser, list view, error view).
+- `src/store.ts` — Data layer with mock licenses. Will be swapped for Notion adapter later.
+- `src/types.ts` — `License` interface and related types.
+- `src/clipboard.ts` — Cross-platform clipboard copy (pbcopy/xclip).
+
+## Commands
+
+- `lics <name>` — Quick lookup with TUI card + clipboard copy
+- `lics` — Interactive browser with search and keyboard navigation
+- `lics --list` / `-l` — Styled table of all licenses
+- `lics --json [name]` / `-j` — JSON output (no TUI)
+- `lics --copy <name>` / `-c` — Copy key to clipboard (no TUI)
+
+## OpenTUI Notes
+
+- Uses Core imperative API (`@opentui/core`), not React/Solid reconciler
+- `remove(id: string)` — takes an ID string, not a renderable reference
+- `engine.register(timeline)` / `engine.unregister(timeline)` — not `addTimeline`
+- Easing functions use short names: `outQuad`, `inExpo`, `outBounce`, etc. (not `easeOutQuad`)
+- Properties are getter/setters: `box.width = 40`, `text.content = "..."`, `select.options = [...]`
+- Never call `process.exit()` directly — use `renderer.destroy()` first
+- Tokyo Night color palette: bg `#1a1a2e`, border `#7aa2f7`, text `#c0caf5`
+
+## Bun
 
 Default to using Bun instead of Node.js.
 
