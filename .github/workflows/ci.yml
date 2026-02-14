@@ -3,6 +3,9 @@ permissions:
   contents: read
 on:
   push: null
+  release:
+    types:
+      - created
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -24,3 +27,54 @@ jobs:
         run: bun build src/cli.ts --outdir dist --target node --format esm
       - name: Test
         run: bun test
+
+  publish:
+    needs: ci
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Extract version from release tag
+        id: version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="${TAG#v}"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'; then
+            echo "::error::Tag '$TAG' is not valid semver"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Determine npm dist-tag
+        id: npm_tag
+        env:
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            echo "tag=pre" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+      - name: Install dependencies
+        run: bun install
+      - name: Set package version
+        env:
+          PKG_VERSION: ${{ steps.version.outputs.version }}
+        run: npm version "$PKG_VERSION" --no-git-tag-version
+      - name: Build for publishing
+        run: bun build src/cli.ts --outdir dist --target node --format esm
+        # Note: Build is re-run here (not duplicating CI) because package.json
+        # was just modified by 'npm version'. We need a clean build with the
+        # correct version for the published package.
+      - name: Publish
+        env:
+          NPM_TAG: ${{ steps.npm_tag.outputs.tag }}
+        run: npm publish --provenance --tag "$NPM_TAG"
