@@ -69,7 +69,6 @@ export async function writeLicenceFile(file: LicenceFile, outputDir?: string): P
   const rawDir = outputDir ?? '~/Downloads'
   const dir = expandTilde(rawDir)
   const filePath = join(dir, file.name.split(/[\\/]/).pop() || 'licence')
-  const filePath = join(dir, file.name)
 
   try {
     const content = Buffer.from(file.data, 'base64')
