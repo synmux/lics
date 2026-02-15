@@ -48,7 +48,7 @@ program
 
       // Coming soon gate - remove this block to enable full CLI
       if (!process.env.LICS_MISE_ACTIVE && !options.xyzzy) {
-        const { renderComingSoon } = await import('./coming-soon.js')
+const { renderComingSoon } = await import('./coming-soon.ts')
         await renderComingSoon()
         return
       }
