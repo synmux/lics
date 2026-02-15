@@ -2,8 +2,8 @@
 import { Command } from 'commander'
 import { copyToClipboard, writeLicenceFile } from './clipboard.ts'
 import { getConfigPath, loadConfig, openConfigInEditor } from './config.ts'
-import { getAllLicences, getLicence, searchLicences } from './store.ts'
-import { licenceKind } from './types.ts'
+import { getAllLicences, getLicences, searchLicences } from './store.ts'
+import { formatApps, licenceKind } from './types.ts'
 import { renderBrowser, renderDisambiguate, renderError, renderList, renderLookup } from './ui.ts'
 
 const program = new Command()
@@ -53,13 +53,13 @@ program
         return
       }
 
-      // --json mode: no TUI, just stdout
+      // --json mode: no TUI, just stdout (always returns an array)
       if (options.json !== undefined) {
         const jsonName = typeof options.json === 'string' ? options.json : name
         if (jsonName) {
-          const licence = getLicence(jsonName)
-          if (licence) {
-            console.log(JSON.stringify(licence, null, 2))
+          const results = getLicences(jsonName)
+          if (results.length > 0) {
+            console.log(JSON.stringify(results, null, 2))
           } else {
             console.error(`No licence found for "${jsonName}"`)
             process.exit(1)
@@ -72,18 +72,28 @@ program
 
       // --copy mode: no TUI, clipboard or file write + one-liner
       if (options.copy) {
-        const licence = getLicence(options.copy)
-        if (!licence) {
+        const results = getLicences(options.copy)
+        if (results.length === 0) {
           console.error(`No licence found for "${options.copy}"`)
           process.exit(1)
         }
 
+        if (results.length > 1) {
+          console.error(`Multiple licences match "${options.copy}":`)
+          for (const match of results) {
+            console.error(`  • ${match.label} (${formatApps(match)})`)
+          }
+          console.error('Please be more specific.')
+          process.exit(1)
+        }
+
+        const licence = results[0]!
         const kind = licenceKind(licence)
 
         if (kind === 'key' || kind === 'both') {
           const copied = await copyToClipboard(licence.licenceKey!)
           if (copied) {
-            console.log(`✓ ${licence.app} key copied to clipboard`)
+            console.log(`✓ ${licence.label} key copied to clipboard`)
           } else {
             // Fallback: print the key to stdout
             console.log(licence.licenceKey)
@@ -93,15 +103,15 @@ program
         if (kind === 'file' || kind === 'both') {
           const path = await writeLicenceFile(licence.licenceFile!, outputDir)
           if (path) {
-            console.log(`✓ ${licence.app} licence file saved to ${path}`)
+            console.log(`✓ ${licence.label} licence file saved to ${path}`)
           } else {
-            console.error(`✗ Failed to write licence file for ${licence.app}`)
+            console.error(`✗ Failed to write licence file for ${licence.label}`)
             process.exit(1)
           }
         }
 
         if (kind === 'none') {
-          console.error(`No key or file available for "${licence.app}"`)
+          console.error(`No key or file available for "${licence.label}"`)
           process.exit(1)
         }
 

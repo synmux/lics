@@ -9,7 +9,8 @@ import type { Licence } from './types.ts'
 const licences: Licence[] = [
   {
     id: 'mock-1',
-    app: 'JetBrains All Products Pack',
+    label: 'JetBrains All Products Pack',
+    apps: ['IntelliJ IDEA', 'WebStorm', 'DataGrip', 'GoLand', 'PyCharm'],
     licenceKey: 'JBAP-2X9K4-M7R3N-HQWF8-PLZV6',
     licenceFile: null,
     name: 'Dave Williams',
@@ -22,7 +23,8 @@ const licences: Licence[] = [
   },
   {
     id: 'mock-2',
-    app: 'Sublime Text',
+    label: 'Sublime Text',
+    apps: ['Sublime Text'],
     licenceKey: 'SUBL-4R8T2-VN5CX-QJ7WM-3YKBD',
     licenceFile: null,
     name: 'Dave Williams',
@@ -35,7 +37,8 @@ const licences: Licence[] = [
   },
   {
     id: 'mock-3',
-    app: '1Password',
+    label: '1Password Family',
+    apps: ['1Password'],
     licenceKey: 'A3-XKMR47-NF8QYL-BWTZ62-DPCHV9-JE5GA',
     licenceFile: null,
     name: 'Dave Williams',
@@ -48,7 +51,8 @@ const licences: Licence[] = [
   },
   {
     id: 'mock-4',
-    app: 'SoundSource',
+    label: 'SoundSource',
+    apps: ['SoundSource'],
     licenceKey: 'SS5-DXWM-7KRN-VQJF-3BTH',
     licenceFile: null,
     name: 'Dave Williams',
@@ -61,7 +65,8 @@ const licences: Licence[] = [
   },
   {
     id: 'mock-5',
-    app: 'Typora',
+    label: 'Typora',
+    apps: ['Typora'],
     licenceKey: 'TYP-9NXW4-RQKM7-BFHZ2',
     licenceFile: null,
     name: 'Dave Williams',
@@ -74,7 +79,8 @@ const licences: Licence[] = [
   },
   {
     id: 'mock-6',
-    app: 'Microsoft Office 365',
+    label: 'Microsoft Office 365 E3',
+    apps: ['Microsoft Office 365', 'Word', 'Excel', 'PowerPoint', 'Outlook'],
     licenceKey: null,
     licenceFile: {
       name: 'microsoft-office-365.lic',
@@ -100,7 +106,8 @@ const licences: Licence[] = [
   },
   {
     id: 'mock-7',
-    app: 'Sketch',
+    label: 'Sketch',
+    apps: ['Sketch'],
     licenceKey: null,
     licenceFile: {
       name: 'sketch-licence.txt',
@@ -118,7 +125,8 @@ const licences: Licence[] = [
   },
   {
     id: 'mock-8',
-    app: 'Adobe Creative Cloud',
+    label: 'Adobe Creative Cloud All Apps',
+    apps: ['Adobe Creative Cloud', 'Photoshop', 'Illustrator', 'Premiere Pro'],
     licenceKey: 'ADCC-7WX2F-QR9TN-4MLBK-8YCVH-ZP6JD',
     licenceFile: null,
     name: 'Dave Williams',
@@ -128,13 +136,31 @@ const licences: Licence[] = [
     purchaseDate: new Date('2025-05-01'),
     expiryDate: new Date('2026-11-30'),
     note: 'All Apps plan'
+  },
+  {
+    id: 'mock-9',
+    label: 'Sublime Text Team',
+    apps: ['Sublime Text', 'Sublime Merge'],
+    licenceKey: 'STEA-8QW3R-XN2VK-JM6FP-4YBTH',
+    licenceFile: null,
+    name: 'Dave Williams',
+    email: 'dave@dave.io',
+    version: '4',
+    url: 'https://www.sublimehq.com',
+    purchaseDate: new Date('2025-02-01'),
+    expiryDate: new Date('2027-02-01'),
+    note: 'Team licence, covers Sublime Text and Sublime Merge'
   }
 ]
 
-/** Fuzzy substring match against app name (case-insensitive) */
+/** Substring match against both label and app names (case-insensitive) */
 export function searchLicences(query: string): Licence[] {
   const normalizedQuery = query.toLowerCase()
-  return licences.filter((licence) => licence.app.toLowerCase().includes(normalizedQuery))
+  return licences.filter(
+    (licence) =>
+      licence.label.toLowerCase().includes(normalizedQuery) ||
+      licence.apps.some((appName) => appName.toLowerCase().includes(normalizedQuery))
+  )
 }
 
 /** Return all licences */
@@ -142,24 +168,47 @@ export function getAllLicences(): Licence[] {
   return [...licences]
 }
 
-/** Exact-ish match: case-insensitive, prefers exact over partial */
-export function getLicence(name: string): Licence | null {
+/**
+ * Return all licences whose apps array contains a match for the given name.
+ * Exact app-name matches are sorted first, then partial matches.
+ */
+export function getLicences(name: string): Licence[] {
   const normalizedName = name.toLowerCase()
-  return (
-    licences.find((licence) => licence.app.toLowerCase() === normalizedName) ??
-    licences.find((licence) => licence.app.toLowerCase().includes(normalizedName)) ??
-    null
-  )
+
+  const exactAppMatches: Licence[] = []
+  const partialMatches: Licence[] = []
+
+  for (const licence of licences) {
+    const hasExactApp = licence.apps.some((appName) => appName.toLowerCase() === normalizedName)
+    const hasPartialApp = licence.apps.some((appName) => appName.toLowerCase().includes(normalizedName))
+    const labelMatch =
+      licence.label.toLowerCase() === normalizedName || licence.label.toLowerCase().includes(normalizedName)
+
+    if (hasExactApp) {
+      exactAppMatches.push(licence)
+    } else if (hasPartialApp || labelMatch) {
+      partialMatches.push(licence)
+    }
+  }
+
+  return [...exactAppMatches, ...partialMatches]
+}
+
+/** Exact-ish match: wraps getLicences(), returns the first result or null */
+export function getLicence(name: string): Licence | null {
+  return getLicences(name)[0] ?? null
 }
 
 /**
  * Return the closest matches for a given query (for "did you mean?" suggestions).
- * Delegates to fuzzyMatch for Jaro-Winkler–based scoring.
+ * Collects all unique app names across all licences and delegates to fuzzyMatch.
  */
 export function getSuggestions(query: string, max = 3): string[] {
-  return fuzzyMatch(
-    query,
-    licences.map((licence) => licence.app),
-    max
-  )
+  return fuzzyMatch(query, getAllAppNames(), max)
+}
+
+/** Returns a sorted list of unique app names across all licences */
+export function getAllAppNames(): string[] {
+  const appNames = new Set(licences.flatMap((licence) => licence.apps))
+  return [...appNames].sort((first, second) => first.localeCompare(second))
 }

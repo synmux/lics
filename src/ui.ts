@@ -20,7 +20,7 @@ import {
 import { copyToClipboard, writeLicenceFile } from './clipboard.ts'
 import { getSuggestions, searchLicences } from './store.ts'
 import type { Licence } from './types.ts'
-import { licenceKind } from './types.ts'
+import { formatApps, licenceKind } from './types.ts'
 
 // ── Color Palette (Tokyo Night) ──────────────────────────────────────
 const colors = {
@@ -59,6 +59,12 @@ function expiryText(licence: Licence): string {
   return `${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`
 }
 
+function truncateApps(apps: string[], maxLength: number): string {
+  const joined = apps.join(', ')
+  if (joined.length <= maxLength) return joined
+  return `${joined.slice(0, maxLength - 1)}…`
+}
+
 function kindBadge(licence: Licence): string {
   const kind = licenceKind(licence)
   switch (kind) {
@@ -81,8 +87,8 @@ function formatLicenceOption(licence: Licence): {
   const expiryLabel = expiryText(licence)
   const badge = kindBadge(licence)
   return {
-    name: licence.app,
-    description: `${badge} · ${expiryLabel}`,
+    name: licence.label,
+    description: `${formatApps(licence)} · ${badge} · ${expiryLabel}`,
     value: licence
   }
 }
@@ -437,8 +443,15 @@ export async function renderList(licences: Licence[]): Promise<void> {
   headerRow.add(
     new TextRenderable(renderer, {
       id: 'h-name',
-      content: t`${bold(fg(colors.border)('Software'))}`,
-      width: 28
+      content: t`${bold(fg(colors.border)('Label'))}`,
+      width: 22
+    })
+  )
+  headerRow.add(
+    new TextRenderable(renderer, {
+      id: 'h-apps',
+      content: t`${bold(fg(colors.border)('Apps'))}`,
+      width: 22
     })
   )
   headerRow.add(
@@ -459,7 +472,7 @@ export async function renderList(licences: Licence[]): Promise<void> {
   // Separator
   const separator = new TextRenderable(renderer, {
     id: 'separator',
-    content: t`${fg(colors.muted)('─'.repeat(58))}`
+    content: t`${fg(colors.muted)('─'.repeat(74))}`
   })
 
   root.add(banner)
@@ -478,8 +491,15 @@ export async function renderList(licences: Licence[]): Promise<void> {
     row.add(
       new TextRenderable(renderer, {
         id: `name-${licence.id}`,
-        content: t`${fg(colors.text)(licence.app)}`,
-        width: 28
+        content: t`${fg(colors.text)(licence.label)}`,
+        width: 22
+      })
+    )
+    row.add(
+      new TextRenderable(renderer, {
+        id: `apps-${licence.id}`,
+        content: t`${fg(colors.muted)(truncateApps(licence.apps, 20))}`,
+        width: 22
       })
     )
     row.add(
@@ -604,12 +624,19 @@ function buildLicenceCard(renderer: CliRenderer, licence: Licence): BoxRenderabl
     backgroundColor: '#16161e'
   })
 
-  // App name
+  // Label
   const nameText = new TextRenderable(renderer, {
     id: 'card-name',
-    content: t`${bold(fg(colors.text)(licence.app))}`
+    content: t`${bold(fg(colors.text)(licence.label))}`
   })
   card.add(nameText)
+
+  // Apps covered by this licence
+  const appsText = new TextRenderable(renderer, {
+    id: 'card-apps',
+    content: t`${dim('Apps:')} ${licence.apps.join(', ')}`
+  })
+  card.add(appsText)
 
   // Licence key or file indicator
   const kind = licenceKind(licence)

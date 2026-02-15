@@ -2,9 +2,13 @@
  * Licence types matching the Notion "Licences" database schema.
  *
  * Notion fields:
- *   App (title), Licence Key (text), Licence File (file),
- *   Name (text), Email (email), Version (text), URL (url),
- *   Purchase Date (date), Expiry Date (date), Note (text)
+ *   Label (title), Apps (multi-select), Licence Key (text),
+ *   Licence File (file), Name (text), Email (email), Version (text),
+ *   URL (url), Purchase Date (date), Expiry Date (date), Note (text)
+ *
+ * A licence has a many-to-many relationship with products:
+ *   - One licence can cover multiple apps (e.g. Adobe CC → Photoshop, Illustrator)
+ *   - One app can appear in multiple licences (e.g. two JetBrains subscriptions)
  */
 
 /** A file attachment from the Notion database */
@@ -19,8 +23,10 @@ export interface LicenceFile {
 export interface Licence {
   /** Notion page ID */
   id: string
-  /** Software / app name (Notion title field "App") */
-  app: string
+  /** Descriptive name for this licence (Notion title field "Label") */
+  label: string
+  /** Product names this licence covers (Notion multi-select field "Apps") */
+  apps: string[]
   /** Licence key string, if this is a key-based licence */
   licenceKey: string | null
   /** Licence file attachment, if this is a file-based licence */
@@ -64,4 +70,14 @@ export function expiryStatus(licence: Licence): ExpiryStatus {
   const thirtyDays = 30 * 24 * 60 * 60 * 1000
   if (licence.expiryDate.getTime() - now.getTime() < thirtyDays) return 'expiring'
   return 'valid'
+}
+
+/** Joins a licence's apps into a comma-separated display string */
+export function formatApps(licence: Licence): string {
+  return licence.apps.join(', ')
+}
+
+/** Returns the first app name — convenience for short displays */
+export function primaryApp(licence: Licence): string {
+  return licence.apps[0]!
 }

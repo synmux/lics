@@ -14,25 +14,28 @@ A CLI tool for looking up software licence keys and files, built with OpenTUI an
 - `src/coming-soon.ts` — **Temporary** coming soon screen (see Coming Soon Feature below).
 - `src/fuzzy.ts` — Jaro-Winkler fuzzy matching (via `@skyra/jaro-winkler`). Used for "did you mean?" suggestions, decoupled from data source.
 - `src/store.ts` — Data layer with mock licences. Will be swapped for Notion adapter later.
-- `src/types.ts` — `Licence` interface and related types. Mirrors the Notion "Licences" database schema.
+- `src/types.ts` — `Licence` interface (`label` + `apps[]` for many-to-many), display helpers, and related types. Mirrors the Notion "Licences" database schema.
 - `src/clipboard.ts` — Cross-platform clipboard copy (pbcopy/xclip) and licence file write-out.
 
 ## Notion Database Schema
 
 The Notion database (see `.env` for name and ID) has these fields:
 
-| Field         | Type  | Notes                                                      |
-| ------------- | ----- | ---------------------------------------------------------- |
-| App           | title | Software name — the search target                          |
-| Licence Key   | text  | Key string (nullable — some licences are files)            |
-| Licence File  | file  | File attachment (nullable — some licences are keys)        |
-| Name          | text  | Registered name                                            |
-| Email         | email | Associated email                                           |
-| Version       | text  | Software version                                           |
-| URL           | url   | Product page / account portal                              |
-| Purchase Date | date  | When purchased                                             |
-| Expiry Date   | date  | When it expires (null = perpetual), reminder 1 week before |
-| Note          | text  | Additional notes                                           |
+| Field         | Type         | Notes                                                      |
+| ------------- | ------------ | ---------------------------------------------------------- |
+| Label         | title        | Descriptive name for the licence                           |
+| Apps          | multi-select | Product names this licence covers (many-to-many)           |
+| Licence Key   | text         | Key string (nullable — some licences are files)            |
+| Licence File  | file         | File attachment (nullable — some licences are keys)        |
+| Name          | text         | Registered name                                            |
+| Email         | email        | Associated email                                           |
+| Version       | text         | Software version                                           |
+| URL           | url          | Product page / account portal                              |
+| Purchase Date | date         | When purchased                                             |
+| Expiry Date   | date         | When it expires (null = perpetual), reminder 1 week before |
+| Note          | text         | Additional notes                                           |
+
+Licences have a **many-to-many** relationship with products: one licence can cover multiple apps (e.g. Adobe CC → Photoshop, Illustrator), and one app can appear in multiple licences (e.g. two Sublime Text subscriptions). The `apps` multi-select field handles this on a single table — no junction table needed.
 
 A licence can have a key, a file, both, or neither. The `licenceKind()` helper in `types.ts` discriminates between these cases.
 
