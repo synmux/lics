@@ -6,11 +6,15 @@ import type { LicenceFile } from './types.ts'
  * Expand tilde (~) to the user's home directory.
  */
 export function expandTilde(path: string): string {
-  if (path.startsWith('~/')) {
-    return join(homedir(), path.slice(2))
-  }
   if (path === '~') {
     return homedir()
+  }
+
+  if (path.startsWith('~/') || path.startsWith('~\\')) {
+    // Remove the leading "~" and then strip any leading path separators
+    const remainder = path.slice(1)
+    const relativeRemainder = remainder.replace(/^[\\/]+/, '')
+    return join(homedir(), relativeRemainder)
   }
   return path
 }
