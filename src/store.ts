@@ -177,7 +177,7 @@ function levenshteinDistance(a: string, b: string, maxDistance = MAX_SUGGESTION_
 
   for (let i = 1; i <= m; i++) {
     currRow[0] = i
-    let minInRow = i // Initialize to i (which equals currRow[0]) for early exit tracking
+    let minInRow = i // Track minimum distance in current row for early exit
 
     for (let j = 1; j <= n; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1
@@ -210,7 +210,7 @@ function levenshteinDistance(a: string, b: string, maxDistance = MAX_SUGGESTION_
  */
 export function getSuggestions(query: string, max = 3): string[] {
   const q = query.toLowerCase()
-  
+
   const scored = licences.map((l) => {
     const name = l.app.toLowerCase()
     // Use minimum distance to any word in the app name for better matching
@@ -222,7 +222,7 @@ export function getSuggestions(query: string, max = 3): string[] {
     const distance = Math.min(minWordDistance, fullDistance)
     return { name: l.app, distance }
   })
-  
+
   // Filter out results that exceed threshold, then sort by distance (lower is better)
   return scored
     .filter((s) => s.distance <= MAX_SUGGESTION_DISTANCE)
