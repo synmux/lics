@@ -1,5 +1,5 @@
 [env]
-LIKS_MISE_ACTIVE = 'true'
+LICS_MISE_ACTIVE = 'true'
 
 [settings]
 env_file = '.env'
