@@ -73,17 +73,17 @@ function kindBadge(licence: Licence): string {
   }
 }
 
-function formatLicenceOption(l: Licence): {
+function formatLicenceOption(licence: Licence): {
   name: string
   description: string
   value: Licence
 } {
-  const exp = expiryText(l)
-  const badge = kindBadge(l)
+  const expiryLabel = expiryText(licence)
+  const badge = kindBadge(licence)
   return {
-    name: l.app,
-    description: `${badge} · ${exp}`,
-    value: l
+    name: licence.app,
+    description: `${badge} · ${expiryLabel}`,
+    value: licence
   }
 }
 
@@ -145,13 +145,13 @@ export async function renderLookup(licence: Licence, outputDir?: string): Promis
       autoplay: true
     })
     timeline.add(
-      { w: 0 },
+      { width: 0 },
       {
-        w: 40,
+        width: 40,
         duration: 600,
         ease: 'outQuad',
         onUpdate: (anim) => {
-          loadBarInner.width = Math.round(anim.targets[0].w)
+          loadBarInner.width = Math.round(anim.targets[0].width)
         },
         onComplete: () => resolve()
       }
@@ -187,14 +187,14 @@ export async function renderLookup(licence: Licence, outputDir?: string): Promis
 
   // Show action result
   const lines = actionMsg.split('\n')
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    const line = lines[lineIndex]!
     const isSuccess = line.startsWith('✓')
     const isError = line.startsWith('✗')
     const color = isSuccess ? colors.success : isError ? colors.error : colors.muted
     root.add(
       new TextRenderable(renderer, {
-        id: `action-msg-${i}`,
+        id: `action-msg-${lineIndex}`,
         content: t`${fg(color)(line)}`
       })
     )
@@ -457,14 +457,14 @@ export async function renderList(licences: Licence[]): Promise<void> {
   )
 
   // Separator
-  const sep = new TextRenderable(renderer, {
+  const separator = new TextRenderable(renderer, {
     id: 'separator',
     content: t`${fg(colors.muted)('─'.repeat(58))}`
   })
 
   root.add(banner)
   root.add(headerRow)
-  root.add(sep)
+  root.add(separator)
 
   // Data rows
   for (const licence of licences) {
@@ -559,17 +559,17 @@ export async function renderError(message: string, query?: string): Promise<void
   if (query) {
     const suggestions = getSuggestions(query)
     if (suggestions.length > 0) {
-      const sugLabel = new TextRenderable(renderer, {
+      const suggestionLabel = new TextRenderable(renderer, {
         id: 'sug-label',
         content: t`${dim('Did you mean:')}`
       })
-      errorBox.add(sugLabel)
-      for (let i = 0; i < suggestions.length; i++) {
-        const sug = new TextRenderable(renderer, {
-          id: `sug-${i}`,
-          content: t`  ${fg(colors.info)('•')} ${suggestions[i]!}`
+      errorBox.add(suggestionLabel)
+      for (let suggestionIndex = 0; suggestionIndex < suggestions.length; suggestionIndex++) {
+        const suggestionText = new TextRenderable(renderer, {
+          id: `sug-${suggestionIndex}`,
+          content: t`  ${fg(colors.info)('•')} ${suggestions[suggestionIndex]!}`
         })
-        errorBox.add(sug)
+        errorBox.add(suggestionText)
       }
     }
   }

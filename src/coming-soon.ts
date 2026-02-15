@@ -59,7 +59,7 @@ export async function renderComingSoon(): Promise<void> {
   })
 
   // Description box
-  const descBox = new BoxRenderable(renderer, {
+  const descriptionBox = new BoxRenderable(renderer, {
     id: 'desc-box',
     width: 60,
     flexDirection: 'column',
@@ -69,18 +69,18 @@ export async function renderComingSoon(): Promise<void> {
     marginBottom: 1
   })
 
-  const desc1 = new TextRenderable(renderer, {
+  const descriptionLine1 = new TextRenderable(renderer, {
     id: 'desc-1',
     content: t`${fg(colors.text)('Quickly look up and copy software licence keys')}`
   })
 
-  const desc2 = new TextRenderable(renderer, {
+  const descriptionLine2 = new TextRenderable(renderer, {
     id: 'desc-2',
     content: t`${fg(colors.text)('from your Notion database, right in your terminal.')}`
   })
 
-  descBox.add(desc1)
-  descBox.add(desc2)
+  descriptionBox.add(descriptionLine1)
+  descriptionBox.add(descriptionLine2)
 
   // Footer
   const footer = new TextRenderable(renderer, {
@@ -92,7 +92,7 @@ export async function renderComingSoon(): Promise<void> {
   root.add(banner)
   root.add(heading)
   root.add(subtitle)
-  root.add(descBox)
+  root.add(descriptionBox)
   root.add(footer)
   renderer.root.add(root)
 
@@ -103,14 +103,14 @@ export async function renderComingSoon(): Promise<void> {
   })
 
   timeline.add(
-    { y: -5 },
+    { offsetY: -5 },
     {
-      y: 0,
+      offsetY: 0,
       duration: 800,
       ease: 'outQuad',
       onUpdate: (anim) => {
         // Subtle vertical slide-in animation
-        const offset = Math.round(anim.targets[0].y)
+        const offset = Math.round(anim.targets[0].offsetY)
         heading.marginTop = offset > 0 ? offset : 0
       }
     }

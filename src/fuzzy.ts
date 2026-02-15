@@ -9,15 +9,15 @@ import { jaroWinkler } from '@skyra/jaro-winkler'
  * word "Sublime" even though the full string is longer.
  */
 export function fuzzyMatch(query: string, candidates: string[], max = 3): string[] {
-  const q = query.toLowerCase()
+  const normalizedQuery = query.toLowerCase()
   const scored = candidates.map((candidate) => {
     const name = candidate.toLowerCase()
     const words = name.split(/\s+/)
-    const maxWordSimilarity = Math.max(...words.map((word) => jaroWinkler(q, word)))
-    const fullSimilarity = jaroWinkler(q, name)
+    const maxWordSimilarity = Math.max(...words.map((word) => jaroWinkler(normalizedQuery, word)))
+    const fullSimilarity = jaroWinkler(normalizedQuery, name)
     const similarity = Math.max(maxWordSimilarity, fullSimilarity)
     return { candidate, similarity }
   })
-  scored.sort((a, b) => b.similarity - a.similarity)
-  return scored.slice(0, max).map((s) => s.candidate)
+  scored.sort((left, right) => right.similarity - left.similarity)
+  return scored.slice(0, max).map((scoredEntry) => scoredEntry.candidate)
 }

@@ -9,10 +9,10 @@ describe('getAllLicences', () => {
   })
 
   test('returns a copy (not the original array)', () => {
-    const a = getAllLicences()
-    const b = getAllLicences()
-    expect(a).not.toBe(b)
-    expect(a).toEqual(b)
+    const firstResult = getAllLicences()
+    const secondResult = getAllLicences()
+    expect(firstResult).not.toBe(secondResult)
+    expect(firstResult).toEqual(secondResult)
   })
 })
 

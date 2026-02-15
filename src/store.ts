@@ -133,8 +133,8 @@ const licences: Licence[] = [
 
 /** Fuzzy substring match against app name (case-insensitive) */
 export function searchLicences(query: string): Licence[] {
-  const q = query.toLowerCase()
-  return licences.filter((l) => l.app.toLowerCase().includes(q))
+  const normalizedQuery = query.toLowerCase()
+  return licences.filter((licence) => licence.app.toLowerCase().includes(normalizedQuery))
 }
 
 /** Return all licences */
@@ -144,9 +144,11 @@ export function getAllLicences(): Licence[] {
 
 /** Exact-ish match: case-insensitive, prefers exact over partial */
 export function getLicence(name: string): Licence | null {
-  const q = name.toLowerCase()
+  const normalizedName = name.toLowerCase()
   return (
-    licences.find((l) => l.app.toLowerCase() === q) ?? licences.find((l) => l.app.toLowerCase().includes(q)) ?? null
+    licences.find((licence) => licence.app.toLowerCase() === normalizedName) ??
+    licences.find((licence) => licence.app.toLowerCase().includes(normalizedName)) ??
+    null
   )
 }
 
@@ -157,7 +159,7 @@ export function getLicence(name: string): Licence | null {
 export function getSuggestions(query: string, max = 3): string[] {
   return fuzzyMatch(
     query,
-    licences.map((l) => l.app),
+    licences.map((licence) => licence.app),
     max
   )
 }

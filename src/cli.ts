@@ -81,8 +81,8 @@ program
         const kind = licenceKind(licence)
 
         if (kind === 'key' || kind === 'both') {
-          const ok = await copyToClipboard(licence.licenceKey!)
-          if (ok) {
+          const copied = await copyToClipboard(licence.licenceKey!)
+          if (copied) {
             console.log(`✓ ${licence.app} key copied to clipboard`)
           } else {
             // Fallback: print the key to stdout
