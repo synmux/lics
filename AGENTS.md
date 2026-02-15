@@ -12,6 +12,7 @@ A CLI tool for looking up software licence keys and files, built with OpenTUI an
 - `src/config.ts` — JSON configuration system. Platform-aware config directory, `conf`-backed store, env var overrides.
 - `src/ui.ts` — All OpenTUI rendering (lookup card, interactive browser, list view, error view).
 - `src/coming-soon.ts` — **Temporary** coming soon screen (see Coming Soon Feature below).
+- `src/fuzzy.ts` — Jaro-Winkler fuzzy matching (via `@skyra/jaro-winkler`). Used for "did you mean?" suggestions, decoupled from data source.
 - `src/store.ts` — Data layer with mock licences. Will be swapped for Notion adapter later.
 - `src/types.ts` — `Licence` interface and related types. Mirrors the Notion "Licences" database schema.
 - `src/clipboard.ts` — Cross-platform clipboard copy (pbcopy/xclip) and licence file write-out.
