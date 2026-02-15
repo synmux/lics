@@ -216,6 +216,7 @@ export async function renderLookup(licence: Licence, outputDir?: string): Promis
 
 export async function renderDisambiguate(matches: Licence[], outputDir?: string): Promise<void> {
   const renderer = await createCliRenderer({ exitOnCtrlC: true })
+  engine.attach(renderer)
 
   const root = new BoxRenderable(renderer, {
     id: 'root',
@@ -280,6 +281,7 @@ export async function renderDisambiguate(matches: Licence[], outputDir?: string)
 
 export async function renderBrowser(licences: Licence[], outputDir?: string): Promise<void> {
   const renderer = await createCliRenderer({ exitOnCtrlC: true })
+  engine.attach(renderer)
 
   let searchFocused = true
   let currentLicences = licences
@@ -404,6 +406,7 @@ export async function renderBrowser(licences: Licence[], outputDir?: string): Pr
 
 export async function renderList(licences: Licence[]): Promise<void> {
   const renderer = await createCliRenderer({ exitOnCtrlC: true })
+  engine.attach(renderer)
 
   const root = new BoxRenderable(renderer, {
     id: 'root',
@@ -515,6 +518,7 @@ export async function renderList(licences: Licence[]): Promise<void> {
 
 export async function renderError(message: string, query?: string): Promise<void> {
   const renderer = await createCliRenderer({ exitOnCtrlC: true })
+  engine.attach(renderer)
 
   const root = new BoxRenderable(renderer, {
     id: 'root',

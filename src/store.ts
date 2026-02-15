@@ -150,19 +150,55 @@ export function getLicence(name: string): Licence | null {
 }
 
 /**
+ * Calculate Levenshtein distance between two strings.
+ * Returns the minimum number of single-character edits needed to transform a into b.
+ */
+function levenshteinDistance(a: string, b: string): number {
+  const m = a.length
+  const n = b.length
+
+  // Create a matrix of distances
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0))
+
+  // Base cases: transforming empty string to/from a string of length i
+  for (let i = 0; i <= m; i++) dp[i]![0] = i
+  for (let j = 0; j <= n; j++) dp[0]![j] = j
+
+  // Fill the matrix
+  for (let i = 1; i <= m; i++) {
+    const prevRow = dp[i - 1]!;
+    const currentRow = dp[i]!;
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      currentRow[j] = Math.min(
+        prevRow[j]! + 1, // deletion
+        currentRow[j - 1]! + 1, // insertion
+        prevRow[j - 1]! + cost // substitution
+      );
+    }
+  }
+
+  return dp[m]![n]!
+}
+
+/**
  * Return the closest matches for a given query (for "did you mean?" suggestions).
- * Uses simple character overlap scoring.
+ * Uses Levenshtein distance for fuzzy matching.
  */
 export function getSuggestions(query: string, max = 3): string[] {
   const q = query.toLowerCase()
   const scored = licences.map((l) => {
     const name = l.app.toLowerCase()
-    let score = 0
-    for (const char of q) {
-      if (name.includes(char)) score++
-    }
-    return { name: l.app, score }
+    // Use minimum distance to any word in the app name for better matching
+    const words = name.split(/\s+/)
+    const minWordDistance = Math.min(...words.map((word) => levenshteinDistance(q, word)))
+    // Also consider distance to full name for exact matches
+    const fullDistance = levenshteinDistance(q, name)
+    // Take the better of the two scores
+    const distance = Math.min(minWordDistance, fullDistance)
+    return { name: l.app, distance }
   })
-  scored.sort((a, b) => b.score - a.score)
+  // Sort by distance (lower is better)
+  scored.sort((a, b) => a.distance - b.distance)
   return scored.slice(0, max).map((s) => s.name)
 }
