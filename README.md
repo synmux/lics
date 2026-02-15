@@ -102,6 +102,6 @@ bun src/cli.ts --xyzzy --list
   - [x] Database ID (required)
   - [x] Database name (optional, display only)
   - [x] Path to write licence files (default: `~/Downloads`)
+- [x] Add support for multiple licences per product
+- [x] Add support for multiple products per licence
 - [ ] Add Notion adapter
-- [ ] Add support for multiple licences per product
-- [ ] Add support for multiple products per licence
