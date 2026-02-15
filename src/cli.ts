@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
-import { homedir } from 'node:os'
-import { join } from 'node:path'
 import { Command } from 'commander'
 import { copyToClipboard, writeLicenceFile } from './clipboard.ts'
+import { getConfigPath, loadConfig, openConfigInEditor } from './config.ts'
 import { getAllLicences, getLicence, searchLicences } from './store.ts'
 import { licenceKind } from './types.ts'
 import { renderBrowser, renderDisambiguate, renderError, renderList, renderLookup } from './ui.ts'
@@ -17,7 +16,8 @@ program
   .option('-l, --list', 'list all licences')
   .option('-j, --json [name]', 'output as JSON')
   .option('-c, --copy <name>', 'copy licence key to clipboard (no TUI)')
-  .option('-o, --output <dir>', 'output directory for licence files', join(homedir(), 'Downloads'))
+  .option('-o, --output <dir>', 'output directory for licence files')
+  .option('--edit-config', 'Open the configuration file in your editor')
   .option('--xyzzy', 'Enable full CLI (bypass coming soon screen)')
   .action(
     async (
@@ -26,10 +26,26 @@ program
         list?: boolean
         json?: string | boolean
         copy?: string
-        output: string
+        output?: string
+        editConfig?: boolean
         xyzzy?: boolean
       }
     ) => {
+      const { config, isFirstRun } = await loadConfig()
+
+      if (options.editConfig) {
+        await openConfigInEditor()
+        return
+      }
+
+      if (isFirstRun) {
+        console.log(`Configuration file created at ${getConfigPath()}`)
+        console.log('Edit it with: lics --edit-config')
+        console.log()
+      }
+
+      const outputDir = options.output ?? config.outputPath
+
       // Coming soon gate - remove this block to enable full CLI
       if (!process.env.LICS_MISE_ACTIVE && !options.xyzzy) {
         const { renderComingSoon } = await import('./coming-soon.js')
@@ -75,7 +91,7 @@ program
         }
 
         if (kind === 'file' || kind === 'both') {
-          const path = await writeLicenceFile(licence.licenceFile!, options.output)
+          const path = await writeLicenceFile(licence.licenceFile!, outputDir)
           if (path) {
             console.log(`✓ ${licence.app} licence file saved to ${path}`)
           } else {
@@ -104,15 +120,15 @@ program
         if (matches.length === 0) {
           await renderError(`No licence found for "${name}"`, name)
         } else if (matches.length === 1) {
-          await renderLookup(matches[0]!, options.output)
+          await renderLookup(matches[0]!, outputDir)
         } else {
-          await renderDisambiguate(matches, options.output)
+          await renderDisambiguate(matches, outputDir)
         }
         return
       }
 
       // Interactive browser: lics (no args)
-      await renderBrowser(getAllLicences(), options.output)
+      await renderBrowser(getAllLicences(), outputDir)
     }
   )
 

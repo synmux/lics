@@ -35,6 +35,40 @@ lics --json figma
 lics --copy jetbrains
 ```
 
+## Configuration
+
+On first run, `lics` creates a configuration file with sensible defaults:
+
+| Platform | Path                                                                        |
+| -------- | --------------------------------------------------------------------------- |
+| macOS    | `~/.config/lics/config.json`                                                |
+| Linux    | `$XDG_CONFIG_HOME/lics/config.json` (default: `~/.config/lics/config.json`) |
+| Windows  | `%APPDATA%\lics\config.json`                                                |
+
+### Config fields
+
+| Field          | Type   | Default         | Description                       |
+| -------------- | ------ | --------------- | --------------------------------- |
+| `databaseId`   | string | `""`            | Notion database ID                |
+| `databaseName` | string | `"Licences"`    | Display name for the database     |
+| `outputPath`   | string | `"~/Downloads"` | Directory for licence file output |
+
+### Editing configuration
+
+```bash
+# Open config in your $EDITOR
+lics --edit-config
+```
+
+### Environment variable overrides
+
+Environment variables take precedence over config file values:
+
+- `LICS_DATABASE_ID` — overrides `databaseId`
+- `LICS_DATABASE_NAME` — overrides `databaseName`
+
+The `-o` / `--output` CLI flag overrides `outputPath` per-invocation.
+
 ## Development
 
 ```bash
@@ -64,10 +98,10 @@ bun src/cli.ts --xyzzy --list
 
 ## Upcoming
 
-- [ ] Add JSON config in `$XDG_CONFIG_HOME/lics/config.json`
-  - [ ] Database ID (required)
-  - [ ] Database name (necessary? If so, required)
-  - [ ] Path to write licence files (default: `$HOME/Downloads`)
+- [x] Add JSON config in `$XDG_CONFIG_HOME/lics/config.json`
+  - [x] Database ID (required)
+  - [x] Database name (optional, display only)
+  - [x] Path to write licence files (default: `~/Downloads`)
 - [ ] Add Notion adapter
 - [ ] Add support for multiple licences per product
 - [ ] Add support for multiple products per licence

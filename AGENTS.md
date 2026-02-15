@@ -9,6 +9,7 @@ A CLI tool for looking up software licence keys and files, built with OpenTUI an
 ## Architecture
 
 - `src/cli.ts` — Entry point. Commander parses args, then delegates to UI or stdout.
+- `src/config.ts` — JSON configuration system. Platform-aware config directory, `conf`-backed store, env var overrides.
 - `src/ui.ts` — All OpenTUI rendering (lookup card, interactive browser, list view, error view).
 - `src/coming-soon.ts` — **Temporary** coming soon screen (see Coming Soon Feature below).
 - `src/store.ts` — Data layer with mock licences. Will be swapped for Notion adapter later.
@@ -34,6 +35,24 @@ The Notion database (see `.env` for name and ID) has these fields:
 
 A licence can have a key, a file, both, or neither. The `licenceKind()` helper in `types.ts` discriminates between these cases.
 
+## Configuration
+
+Config is stored as JSON, managed by `conf`. On first run, a default config file is auto-created.
+
+| Platform | Path                                                                        |
+| -------- | --------------------------------------------------------------------------- |
+| macOS    | `~/.config/lics/config.json`                                                |
+| Linux    | `$XDG_CONFIG_HOME/lics/config.json` (default: `~/.config/lics/config.json`) |
+| Windows  | `%APPDATA%\lics\config.json`                                                |
+
+| Field          | Type   | Default         | Notes                       |
+| -------------- | ------ | --------------- | --------------------------- |
+| `databaseId`   | string | `""`            | Notion database ID          |
+| `databaseName` | string | `"Licences"`    | Display name                |
+| `outputPath`   | string | `"~/Downloads"` | Directory for licence files |
+
+**Environment variable overrides:** `LICS_DATABASE_ID` and `LICS_DATABASE_NAME` take precedence over config file values. The `-o` CLI flag overrides `outputPath`.
+
 ## Coming Soon Feature
 
 **TEMPORARY** — LICS currently displays a "Coming Soon" screen by default while in development. This can be bypassed in three ways:
@@ -57,7 +76,8 @@ When ready to launch, remove:
 - `lics --list` / `-l` — Styled table of all licences
 - `lics --json [name]` / `-j` — JSON output (no TUI)
 - `lics --copy <name>` / `-c` — Copy key to clipboard or save file (no TUI)
-- `lics --output <dir>` / `-o` — Output directory for licence files (default: ~/Downloads)
+- `lics --output <dir>` / `-o` — Output directory for licence files (overrides config)
+- `lics --edit-config` — Open the configuration file in `$EDITOR`
 - `--xyzzy` — **Temporary** developer flag to bypass coming soon screen
 
 ## Licence Types
