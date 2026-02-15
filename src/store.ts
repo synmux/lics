@@ -177,7 +177,7 @@ function levenshteinDistance(a: string, b: string, maxDistance = MAX_SUGGESTION_
 
   for (let i = 1; i <= m; i++) {
     currRow[0] = i
-    let minInRow = Infinity // Track minimum value in current row for early exit
+    let minInRow = i // Track minimum value in current row for early exit (starts at currRow[0])
 
     for (let j = 1; j <= n; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1
@@ -194,7 +194,7 @@ function levenshteinDistance(a: string, b: string, maxDistance = MAX_SUGGESTION_
       return maxDistance + 1
     }
 
-    // Swap rows for next iteration
+    // Swap rows for next iteration (using temp variable for performance)
     const temp = prevRow
     prevRow = currRow
     currRow = temp
