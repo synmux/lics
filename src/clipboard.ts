@@ -64,6 +64,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 export async function writeLicenceFile(file: LicenceFile, outputDir?: string): Promise<string | null> {
   const rawDir = outputDir ?? '~/Downloads'
   const dir = expandTilde(rawDir)
+  const filePath = join(dir, file.name.split(/[\\/]/).pop() || 'licence')
   const filePath = join(dir, file.name)
 
   try {
