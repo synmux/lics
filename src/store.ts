@@ -173,11 +173,11 @@ function levenshteinDistance(a: string, b: string, maxDistance = MAX_SUGGESTION_
 
   // Use only 2 rows instead of full m×n matrix (space: O(n) instead of O(m×n))
   let prevRow = Array.from({ length: n + 1 }, (_, j) => j)
-  let currRow = Array(n + 1).fill(0)
+  let currRow = Array.from({ length: n + 1 }, () => 0)
 
   for (let i = 1; i <= m; i++) {
     currRow[0] = i
-    let minInRow = i // Track minimum value in current row for early exit (starts at currRow[0])
+    let minInRow = i // Initialize to i (which equals currRow[0]) for early exit tracking
 
     for (let j = 1; j <= n; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1
