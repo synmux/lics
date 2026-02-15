@@ -1,5 +1,8 @@
 import type { Licence } from './types.ts'
 
+/** Maximum Levenshtein distance to consider for suggestions */
+const MAX_SUGGESTION_DISTANCE = 10
+
 /**
  * Mock licence data matching the Notion "Licences" database schema.
  * Includes both key-based and file-based licences.
@@ -159,7 +162,7 @@ export function getLicence(name: string): Licence | null {
  * @param maxDistance Maximum distance to consider (returns maxDistance + 1 if exceeded)
  * @returns Distance between strings, or maxDistance + 1 if it exceeds the threshold
  */
-function levenshteinDistance(a: string, b: string, maxDistance = 10): number {
+function levenshteinDistance(a: string, b: string, maxDistance = MAX_SUGGESTION_DISTANCE): number {
   const m = a.length
   const n = b.length
 
@@ -174,7 +177,7 @@ function levenshteinDistance(a: string, b: string, maxDistance = 10): number {
 
   for (let i = 1; i <= m; i++) {
     currRow[0] = i
-    let minInRow = i // Track minimum value in current row for early exit
+    let minInRow = currRow[0] // Track minimum value in current row for early exit
 
     for (let j = 1; j <= n; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1
@@ -200,20 +203,19 @@ function levenshteinDistance(a: string, b: string, maxDistance = 10): number {
 
 /**
  * Return the closest matches for a given query (for "did you mean?" suggestions).
- * Uses Levenshtein distance for fuzzy matching with a distance threshold of 10.
+ * Uses Levenshtein distance for fuzzy matching with a distance threshold.
  * Only returns suggestions with distance ≤ threshold.
  */
 export function getSuggestions(query: string, max = 3): string[] {
   const q = query.toLowerCase()
-  const maxDistance = 10 // Distance threshold - only suggest if within this range
   
   const scored = licences.map((l) => {
     const name = l.app.toLowerCase()
     // Use minimum distance to any word in the app name for better matching
     const words = name.split(/\s+/)
-    const minWordDistance = Math.min(...words.map((word) => levenshteinDistance(q, word, maxDistance)))
+    const minWordDistance = Math.min(...words.map((word) => levenshteinDistance(q, word)))
     // Also consider distance to full name for exact matches
-    const fullDistance = levenshteinDistance(q, name, maxDistance)
+    const fullDistance = levenshteinDistance(q, name)
     // Take the better of the two scores
     const distance = Math.min(minWordDistance, fullDistance)
     return { name: l.app, distance }
@@ -221,7 +223,7 @@ export function getSuggestions(query: string, max = 3): string[] {
   
   // Filter out results that exceed threshold, then sort by distance (lower is better)
   return scored
-    .filter((s) => s.distance <= maxDistance)
+    .filter((s) => s.distance <= MAX_SUGGESTION_DISTANCE)
     .sort((a, b) => a.distance - b.distance)
     .slice(0, max)
     .map((s) => s.name)
