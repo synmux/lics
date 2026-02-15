@@ -150,55 +150,79 @@ export function getLicence(name: string): Licence | null {
 }
 
 /**
- * Calculate Levenshtein distance between two strings.
+ * Calculate Levenshtein distance between two strings with early exit.
  * Returns the minimum number of single-character edits needed to transform a into b.
+ * Uses a space-optimised 2-row DP approach and caps distance at maxDistance for performance.
+ * 
+ * @param a First string
+ * @param b Second string
+ * @param maxDistance Maximum distance to consider (returns maxDistance + 1 if exceeded)
+ * @returns Distance between strings, or maxDistance + 1 if it exceeds the threshold
  */
-function levenshteinDistance(a: string, b: string): number {
+function levenshteinDistance(a: string, b: string, maxDistance = 10): number {
   const m = a.length
   const n = b.length
 
-  // Create a matrix of distances
-  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0))
-
-  // Base cases: transforming empty string to/from a string of length i
-  for (let i = 0; i <= m; i++) dp[i]![0] = i
-  for (let j = 0; j <= n; j++) dp[0]![j] = j
-
-  // Fill the matrix
-  for (let i = 1; i <= m; i++) {
-    const prevRow = dp[i - 1]!;
-    const currentRow = dp[i]!;
-    for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      currentRow[j] = Math.min(
-        prevRow[j]! + 1, // deletion
-        currentRow[j - 1]! + 1, // insertion
-        prevRow[j - 1]! + cost // substitution
-      );
-    }
+  // Early exit: if length difference exceeds maxDistance, no point computing
+  if (Math.abs(m - n) > maxDistance) {
+    return maxDistance + 1
   }
 
-  return dp[m]![n]!
+  // Use only 2 rows instead of full m×n matrix (space: O(n) instead of O(m×n))
+  let prevRow = Array.from({ length: n + 1 }, (_, j) => j)
+  let currRow = Array(n + 1).fill(0)
+
+  for (let i = 1; i <= m; i++) {
+    currRow[0] = i
+    let minInRow = i // Track minimum value in current row for early exit
+
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      currRow[j] = Math.min(
+        prevRow[j]! + 1,      // deletion
+        currRow[j - 1]! + 1,  // insertion
+        prevRow[j - 1]! + cost // substitution
+      )
+      minInRow = Math.min(minInRow, currRow[j]!)
+    }
+
+    // Early exit: if the best possible distance in this row exceeds threshold, bail
+    if (minInRow > maxDistance) {
+      return maxDistance + 1
+    }
+
+    // Swap rows for next iteration
+    ;[prevRow, currRow] = [currRow, prevRow]
+  }
+
+  return prevRow[n]!
 }
 
 /**
  * Return the closest matches for a given query (for "did you mean?" suggestions).
- * Uses Levenshtein distance for fuzzy matching.
+ * Uses Levenshtein distance for fuzzy matching with a distance threshold of 10.
+ * Only returns suggestions with distance ≤ threshold.
  */
 export function getSuggestions(query: string, max = 3): string[] {
   const q = query.toLowerCase()
+  const maxDistance = 10 // Distance threshold - only suggest if within this range
+  
   const scored = licences.map((l) => {
     const name = l.app.toLowerCase()
     // Use minimum distance to any word in the app name for better matching
     const words = name.split(/\s+/)
-    const minWordDistance = Math.min(...words.map((word) => levenshteinDistance(q, word)))
+    const minWordDistance = Math.min(...words.map((word) => levenshteinDistance(q, word, maxDistance)))
     // Also consider distance to full name for exact matches
-    const fullDistance = levenshteinDistance(q, name)
+    const fullDistance = levenshteinDistance(q, name, maxDistance)
     // Take the better of the two scores
     const distance = Math.min(minWordDistance, fullDistance)
     return { name: l.app, distance }
   })
-  // Sort by distance (lower is better)
-  scored.sort((a, b) => a.distance - b.distance)
-  return scored.slice(0, max).map((s) => s.name)
+  
+  // Filter out results that exceed threshold, then sort by distance (lower is better)
+  return scored
+    .filter((s) => s.distance <= maxDistance)
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, max)
+    .map((s) => s.name)
 }
