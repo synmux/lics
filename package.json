@@ -49,9 +49,9 @@
   },
   "dependencies": {
     "@notionhq/client": "^5.11.1",
-    "@opentui/core": "^0.2.0",
+    "@opentui/core": "^0.3.0",
     "@skyra/jaro-winkler": "^1.1.1",
-    "commander": "^14.0.3",
+    "commander": "^15.0.0",
     "conf": "^15.1.0"
   },
   "version": "0.0.0-dev.unversioned"
