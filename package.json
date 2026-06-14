@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@notionhq/client": "^5.22.0",
-    "@opentui/core": "^0.3.2",
+    "@opentui/core": "^0.4.0",
     "@skyra/jaro-winkler": "^1.1.1",
     "commander": "^15.0.0",
     "conf": "^15.1.0"
